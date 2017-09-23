@@ -1,3 +1,4 @@
+<script src="../main.js"></script>
 <style scoped lang="less">
   @import "../resources/css/website/list.less";
   .page-infinite-loading {
@@ -8,6 +9,7 @@
     }
   }
 
+.linked{color:#0000ff}
 .ys_item_con{margin-bottom:0.3rem}
 .price-bot input{height:100% !important;width:30% !important}
 .price-bot button{position:static !important;width:2rem !important;height:0.8rem !important}
@@ -20,7 +22,6 @@
   padding: .3rem .02rem;
   height: auto !important
 }
-.supply_house{font-size:.3rem !important}
 .ys_tit{line-height:0.8rem}
 .ys_tag {
   display: inline-block;
@@ -33,26 +34,33 @@
   margin-bottom: .08rem;
   border-radius: .1rem;
 }
-.supply_price{text-align:right}
-.supply_price > span{font-size:.4rem !important;color:#e01222;}
-.supply_price i{font-size:.23rem !important}
-.supply_tag dd{padding:.03rem !important}
 .active {
   background-color: #16abdc !important;
   color: #fff !important;
 }
-.supply_msg_box dd.supply_house{margin-top:-0.02rem !important}
 #filter-features{height:6rem;overflow-y:scroll}
 #filter-features .warpper:last-child{margin-bottom:0.5rem}
-.zc{background-color:#ef104e !important;color:#FFF !important;font-size: 0.5em !important;}
-.highlight a{color:#476CBA !important}
-.tagClass{font-size: 0.5em !important;}
+.pos_block{z-index: 88;background-color: #fff;border-bottom: 1px solid #DCDCDC}
+.pos_block .cell{font-weight:700}
+.cell{text-align:center;float:left;padding:.2rem 0;}
+.cell:first-child{width:25%}
+.cell:nth-child(2){width:20%}
+.cell:nth-child(3){width:20%}
+.cell:nth-child(4){width:15%}
+.cell:last-child{width:20%}
+li.ys_listcon:not(:last-child){border-bottom: 1px solid #DCDCDC}
+.pv15{padding:0 !important}
+.export{position:fixed;right:0.4rem;top:.15rem;z-index:9999}
+.export img{width:.6rem;height:.6rem;cursor:pointer}
+.new{background: url('../resources/images/icons/new.jpg') no-repeat;background-size:26px 26px}
+.hilight a{color:#476CBA !important}
 </style>
 <template>
   <div>
     <!--header-->
     <section id="header">
       <header1></header1>
+      <a class="export" href="#" @click.stop.prevent="exportExcel"><img src="../resources/images/icons/down.png"></a>
     </section>
     <a href="javascript:;" class="detail-search" style="position: fixed;left: 0; top: 0">
       <input type="text" id="keyword" placeholder="请输入楼盘关键字搜索" v-model.trim="para.search_keywork" maxlength="50"
@@ -118,7 +126,7 @@
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='y'}">
-                        <li data-type="positionY" @click="where='不限';otherBusiness=[];searchChoose('','','不限', $event)"><a href="javascript:;">不限</a></li>
+                        <li data-type="positionL" @click="where='不限';otherBusiness=[];searchChoose('','','不限', $event)"><a href="javascript:;">不限</a></li>
                         <li v-for="item in districtArray" data-type="positionY"
                             @click="searchArea(item.id, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
@@ -193,11 +201,11 @@
                 <div class="warpper box-flex1">
                   <ul class="box-flex1 bg-white cut-height">
                     <li class="clearfix">
-                      <span class="ys_tit">特色：</span>
+                      <span class="ys_tit">产权性质：</span>
                     </li>
                     <li class="clearfix bg_gray">
                       <div class="ys_item_con fl">
-                        <span v-for="a in featureArray" class="ys_tag" :class="{'active':tsTag.indexOf(a.id)>-1}" :id="a.id" @click="pickTag($event)">{{a.topic}}</span>
+                        <span v-for="a in chqxz" class="ys_tag" :class="{'active':xzTag.indexOf(a) > -1}" :id="a" @click="pickTag($event)">{{a}}</span>
                       </div>
                     </li>
                   </ul>
@@ -223,41 +231,37 @@
         </div>
 
         <!--筛选框fixed时替代div-->
-        <div  id="pos_block"></div>
+        <div class="pos_block clearfix">
+            <div class="cell"><span>楼盘</span></div>
+            <div class="cell"><span>房间号</span></div>
+            <div class="cell"><span>面积</span></div>
+            <div class="cell"><span>单价</span></div>
+            <div class="cell"><span>更多信息</span></div>
+        </div>
 
         <!--筛选结果start-->
         <ul
           v-infinite-scroll="loadMore"
           infinite-scroll-disabled="loading"
           infinite-scroll-distance="100"
-          infinite-scroll-immediate-check="checked">
-          <li class="ys_listcon pv15" v-for="item in resultData">
-            <router-link :to="{path:'/detail',query:{building_id:item.id}}" class="supply_box">
-              <div class="supply_price">
-                <span>{{item.price}}</span> 元/㎡·天
-                <i v-if="item.lpkzfy > 1" style="display: block">{{item.min_areas}} - {{item.max_areas}}㎡</i>
-                <i v-else style="display: block">{{item.min_areas}}㎡</i>
+          infinite-scroll-immediate-check="checked" class="clearfix" style="height: 55em;">
+          <li @click.stop.prevent="makeSelect" :rel="item.id" class="ys_listcon pv15 clearfix" :class="{'linked': select.indexOf(item.id) > -1}" v-for="item in resultData">
+              <div class="cell" :class="{'new': item.bsh==1}">
+                <span>{{item.topic}}</span>
               </div>
-              <dl class="supply">
-                <dt>
-                  <img v-if="item.img_path" :src="$prefix + '/' + item.img_path" :alt="item.img_alt">
-                  <img v-else :src="$prefix + '/upload/2017-08-27/6404b4de960b81fc5403c870aefcea34.png'" :alt="item.img_alt">
-                </dt>
-                <dd class="supply_msg_box clearfix">
-                  <dl>
-                    <dd class="supply_house">{{item.building_name}}</dd>
-                    <dd class="supply_color ellipsis">{{item.district}}</dd>
-                    <dd class="supply_color ellipsis">{{item.lpkzfy}}套房源可租</dd>
-                    <dd>
-                      <dl class="supply_tag clearfix">
-                        <dd v-if="item.label" v-for="tag in item.label.split(',').slice(0,3)" class="tagClass">{{tag}}</dd>
-                        <dd class="tagClass zc" v-show="item.zc.indexOf('不可') < 0">{{item.zc.indexOf('不可') > -1 ? '': item.zc}}</dd>
-                      </dl>
-                    </dd>
-                  </dl>
-                </dd>
-              </dl>
-            </router-link>
+              <div class="cell">
+                <span v-if="item.zdh.indexOf('独栋') > -1">{{item.fybh}}</span>
+                <span v-else>{{item.zdh}} - {{item.fybh}}</span>
+              </div>
+              <div class="cell">
+                <span>{{item.housing_area==='0.0'?'':item.housing_area}}</span>
+              </div>
+              <div class="cell">
+                <span>{{item.daily_price==='0.0'?'':item.daily_price}}</span>
+              </div>
+              <div class="cell">
+                <span style="cursor:pointer;cursor:hand">点击进入</span>
+              </div>
           </li>
         </ul>
         <p v-if="loading" class="page-infinite-loading">
@@ -303,9 +307,10 @@
         areaArray:["-1", "<100", "100-299", "300-499", "500-599", "1000-1499", ">1500"],
         priceArray:["-1", "<3", "3-4.9", "5-7.9", "8-9.9", "10-14.9", ">=15"],
         featureArray: [],
+        chqxz: ["写字楼","公寓","商务楼","住宅","商业","酒店","综合","别墅","商业综合体","酒店式公寓"],
         priceTag: "",
         areaTag: "",
-        tsTag: [],
+        xzTag: [],
         priceRange: ["", ""],
         areaRange: ["", ""],
         curTab:'',
@@ -316,6 +321,7 @@
         loading: false,
         noMore: false,
         checked: false,
+        select: [],
         para: {
           "search_keywork": "",
           "district": "",
@@ -327,19 +333,17 @@
           "area": "",
           "price_dj": "",
           "label": "",
+          "chqxz": "",
           "orderby": "D",
           "curr_page": 1,
           "items_perpage": 10,
         },
-        resultData: [],
-        where: ""
+        resultData: []
       }
     },
     mounted(){
-        //jquery中删除style样式
       $("body").removeAttr("style");
       $("html").removeAttr("style");
-      /*console.log("mounted=================",this.para.curr_page);*/
       this.init();
 
       //下滑时，条件tab固定
@@ -350,21 +354,29 @@
             top: '.88rem',
             left: 0
           });
-
-          $('#pos_block').show();
-
+          $('.pos_block').css({
+            position: 'fixed',
+            display: 'block',
+            width: '100%',
+            top: '1.78rem',
+            left: 0
+          });
         } else {
           $('.filtate-outter').css({
             position: 'relative',
             top: 0,
             left: 0
           });
-          $('#pos_block').hide();
+          $('.pos_block').css({
+            position: 'static',
+            top: 0,
+            left: 0
+          });
         }
       });
     },
     created: function () {
-        /*console.log("created=================",this.para.curr_page);*/
+
     },
     computed: {
       unitword(){
@@ -383,10 +395,14 @@
           this.para.search_keywork = this.$route['query']['keyword'];
         }
 
+        $('title').html("今日销控");
+        //
+        let select = JSON.parse(sessionStorage.getItem("select") || "[]");
+        select = select || [];
+        this.select = select; 
+        //
         this.resetGetData();
         this.getFilters();
-
-        $('title').html('楼盘列表');
       },
       selectTag(e){
         const target = $(e.target), val = target.attr("value"), t = target.attr("target"), which = t ==="price" ? "priceTag" : "areaTag";
@@ -422,20 +438,21 @@
         const target = $(e.target), id = target.attr("id");
         if(!id){return;}
         if ($(target).hasClass('active')) {
-          let _t = new Set(this.tsTag);
+          let _t = new Set(this.xzTag);
           _t.delete(id);
-          this.tsTag = [..._t];
+          this.xzTag = [..._t];
           $(target).removeClass('active');
         } else {
-          let _t = new Set(this.tsTag);
+          let _t = new Set(this.xzTag);
           _t.add(id);
-          this.tsTag = [..._t];
+          this.xzTag = [..._t];
           $(target).addClass('active');
         }
-        this.para.label = this.tsTag.join(",");
+        this.para.chqxz = this.xzTag.join("、");
       },
       filterFocus(e){
           const target = $(e.target), rel = target.attr("rel");
+          this.noMore = true;
           if(rel === "price"){
               $.each($("span[target='price']"), (idx, item)=>{$(item).removeClass("active");});
               this.para.price_dj = "";
@@ -444,6 +461,54 @@
               $.each($("span[target='area']"), (idx, item)=>{$(item).removeClass("active");});
               this.para.area = "";
           }
+      },
+      makeSelect(e){
+          const target = $(e.target).closest("li"), rel = target.attr("rel"), that = this;
+          let select = JSON.parse(sessionStorage.getItem("select") || "[]");
+          select = select || [];
+          select.push(rel);
+          const ids = new Set(select);
+          select = [...ids];
+          sessionStorage.setItem("select", JSON.stringify(select));
+
+          setTimeout(function(){
+              that.$router.push({path:'/order?house_id='+rel});
+          },500);
+      },
+      exportExcel(){
+          MessageBox.confirm('确认导出房源列表？').then(action => {
+              const l = this.para.label, label = l.join ? l.join(",") : l;
+              let param = {"parameters":{ "search_keywork":this.para.search_keywork, "district":this.para.district, "business":this.para.business,"district1":this.para.district1, "business1":this.para.business1, "line_id":this.para.line_id, "station_id":this.para.station_id,"area":this.para.area, "price_dj":this.para.price_dj, "label":l, "orderby":"D", "curr_page":"","items_perpage":""}, "foreEndType":2, "code":"30000001"}, that = this;
+              Indicator.open({
+                text: '正在进行导出，请稍候...',
+                spinnerType: 'fading-circle'
+              });
+
+              this.$http.post(this.$api + "/yhcms/web/lpjbxx/daochu.do", param).then((res)=>{
+                  const result = JSON.parse(res.bodyText), data = result;
+                  if (data.success !== true) {
+                     Indicator.close();
+                      Toast({
+                        message: '抱歉,导出房源出错, 请稍候再试!',
+                        position: 'middle',
+                        duration: 1000
+                      });
+                  }
+                  else{
+                      Indicator.close();
+                      const link = this.$api + "/yhcms/" + data.data;
+                      setTimeout(function(){
+                          window.location = link;
+                      },500);
+                  }
+              }, (res)=>{
+                 Toast({
+                   message: '抱歉,导出房源出错, 请稍候再试!',
+                   position: 'middle',
+                   duration: 1000
+                 });
+              });
+          });
       },
       setFilter(e){
         const target = $(e.target), which = target.attr("rel");
@@ -469,32 +534,18 @@
         if (which === 'reset') {
             this.priceTag = "";
             this.areaTag = "";
-            this.para.price_dj = "";
-            this.para.area = "";
-            this.tsTag = [];
+            this.xzTag = [];
             this.priceRange = ["", ""];
             this.areaRange = ["", ""];
+            this.para.price_dj = "";
+            this.para.area = "";
+            this.para.chqxz = "";
             return;
         }
 
         this.priceFilter = '';
         this.areaFilter = '';
         this.resetGetData();
-      },
-      getTsbq(){
-          Indicator.open({
-             text: '',
-             spinnerType: 'fading-circle'
-          });
-          const url = this.$api + "/yhcms/web/lpjbxx/getTsbq.do";
-          let that = this;
-          this.$http.post(url).then((res)=>{
-            Indicator.close()
-            const data = JSON.parse(res.bodyText).data;
-            that.featureArray = data;
-          }, (res)=>{
-            Indicator.close()
-          });
       },
       searchSubArea:function(code,e){
         this.curTab = "a";
@@ -503,8 +554,9 @@
            text: '',
            spinnerType: 'fading-circle'
         });
+
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
-        li.addClass("highlight").siblings().removeClass("highlight");
+        li.addClass("hilight").siblings().removeClass("hilight");
         this.where = txt;
 
         var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000010"}, this_ = this;
@@ -525,7 +577,7 @@
         });
 
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
-        li.addClass("highlight").siblings().removeClass("highlight");
+        li.addClass("hilight").siblings().removeClass("hilight");
         this.where = txt;
 
         var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000012"}, this_ = this;
@@ -546,7 +598,7 @@
         });
 
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
-        li.addClass("highlight").siblings().removeClass("highlight");
+        li.addClass("hilight").siblings().removeClass("hilight");
         this.where = txt;
 
         var paraObj = {"parameters":{"line_id":line},"foreEndType":2,"code":"30000008"}, this_ = this;
@@ -560,7 +612,7 @@
       },
       setPriceFilter(e){
           const li = $(e.target).closest("li");
-          $(li).addClass("highlight").toggleClass("active-filter");
+          $(li).addClass("hilight").toggleClass("active-filter");
 
           if(this.priceFilter === '' || this.priceFilter === 'P2'){
               this.priceFilter = 'P1';
@@ -577,7 +629,8 @@
       },
       setAreaFilter(e){
           const li = $(e.target).closest("li");
-          $(li).addClass("highlight").toggleClass("active-filter");
+          $(li).addClass("hilight").toggleClass("active-filter");
+
           if(this.areaFilter === '' || this.areaFilter === 'A2'){
               this.areaFilter = 'A1';
           }
@@ -600,11 +653,11 @@
         this.currentFilterTab = 'nth';
       },
       changeRou: function () {
-        this.$router.push({path: '/filter'})
+        this.$router.push({path: '/filter?r=select'})
       },
       searchChoose: function (code, val, value, e) {
         const li = $(e.target).closest('li');
-        li.addClass("highlight").siblings().removeClass("highlight");
+        li.addClass("hilight").siblings().removeClass("hilight");
 
         switch (li.attr('data-type')) {
           case 'positionA':
@@ -613,7 +666,7 @@
             if(value==="不限"){
                 this.para.district1 = code;
                 this.para.business1 = "";
-                 var a = $('h2.district-h').html(this.where || value);
+                $('h2.district-h').html(this.where || value);
             }
             else{
                 this.para.business1 = code;
@@ -719,28 +772,21 @@
         this.getGovDistrict();
         this.getDistrict();
         this.getLines();
-        this.getTsbq();
       },
       chooseFilter: function (e) {
         var e = e || window.event;
         const li = $(e.target).closest('li');
         this.currentFilterTab = li.attr('data-type');
         $(li).siblings().removeClass("active-filter");
-        $(li).siblings().removeClass("highlight");
+        $(li).siblings().removeClass("hilight");
       },
       resetGetData: function () {
         this.noMore = false;
-        this.loading = true;
+        this.loading = false;
 
         this.para.curr_page = 1;
         this.resultData = [];
-
-        Indicator.open({
-           text: '',
-           spinnerType: 'fading-circle'
-        });
         this.getData();
-        Indicator.close();
       },
       getData(){
         const paraObj = {
@@ -755,9 +801,10 @@
             "area": this.para.area,
             "price_dj": this.para.price_dj,
             "label": this.para.label,
+            "chqxz": this.para.chqxz,
             "orderby": this.priceFilter || this.areaFilter || "D",
             "curr_page": this.para.curr_page,
-            "items_perpage": 10
+            "items_perpage": 30
           },
           "foreEndType": 2,
           "code": "30000001"
@@ -767,31 +814,31 @@
         let successCb = function (result) {
           Indicator.close();
           this_.loading = false;
-          this_.resultData = this_.resultData.concat(result.data.data.buildings);
-          if (result.data.data < this_.para.items_perpage) {
+          const data = result.data.data;
+          this_.resultData = this_.resultData.concat(data);
+          if (data.length < this_.para.items_perpage) {
             this_.noMore = true;
           }
           if (this_.resultData.length <= 0) {
             Toast({
               message: '抱歉,暂无符合条件的房源!',
               position: 'middle',
-              duration: 3000
+              duration: 1000
             });
-          } else if (this_.resultData.length > 0 && result.data.data.length == 0) {
+          } else if (this_.resultData.length > 0 && data.length == 0) {
             Toast({
-              message: '已经获得当前条件的所有楼盘!',
+              message: '已经获得当前条件的所有房源!',
               position: 'middle',
-              duration: 3000
+              duration: 1000
             });
           }
         };
         let errorCb = function (result) {
           Indicator.close();
-          this_.loading = false;
           Toast({
             message: '抱歉,暂无符合条件的房源!',
             position: 'middle',
-            duration: 3000
+            duration: 1000
           });
         };
 
@@ -803,7 +850,7 @@
       },
 
       gRemoteData(paraobj, successcb, errorcb){
-        axios.post('/yhcms/web/lpjbxx/getZdLpjbxx.do', paraobj)
+        axios.post('/yhcms/web/lpjbxx/getWxLbFyxx.do', paraobj)
           .then(function (response) {
             if (typeof successcb === "function") {
               successcb(response)
@@ -814,13 +861,11 @@
           }
         });
       },
-      //这块是干什么的
+
       loadMore(){
-          /*console.log("loadMore1=================",this.para.curr_page);*/
         if (!this.loading && !this.noMore) {
           this.loading = true;
           this.para.curr_page += 1;
-            /*console.log("loadMore2=================",this.para.curr_page);*/
           this.getData();
         }
       }

@@ -20,7 +20,11 @@
   padding: .3rem .02rem;
   height: auto !important
 }
-.supply_house{font-size:.3rem !important}
+.supply_house{width:100% !important}
+.supply_msg_box dd.supply_house{font-size:.3rem !important}
+.supply_price{top:.79rem !important}
+.supply_price > span{color:red;font-size:.4rem}
+.supply_color{min-height:.32rem}
 .ys_tit{line-height:0.8rem}
 .ys_tag {
   display: inline-block;
@@ -33,20 +37,19 @@
   margin-bottom: .08rem;
   border-radius: .1rem;
 }
-.supply_price{text-align:right}
-.supply_price > span{font-size:.4rem !important;color:#e01222;}
-.supply_price i{font-size:.23rem !important}
-.supply_tag dd{padding:.03rem !important}
 .active {
   background-color: #16abdc !important;
   color: #fff !important;
 }
-.supply_msg_box dd.supply_house{margin-top:-0.02rem !important}
+.supply_msg_box > dl > dd:not(:last-child){padding-bottom:.13rem}
+.supply_msg_box > dl > dd:last-child > dl > dd:not(:last-child){padding-bottom:.17rem}
 #filter-features{height:6rem;overflow-y:scroll}
 #filter-features .warpper:last-child{margin-bottom:0.5rem}
-.zc{background-color:#ef104e !important;color:#FFF !important;font-size: 0.5em !important;}
-.highlight a{color:#476CBA !important}
-.tagClass{font-size: 0.5em !important;}
+.supply_msg_box dd.supply_house{margin-top:0 !important}
+.hilight a{color:#476CBA !important}
+.cell > dd{float: left;margin-right: .3rem;margin-bottom: .06rem;}
+  .tagClass{font-size: 0.5em !important;}
+  .zc{background-color:#ef104e !important;color:#FFF !important;font-size: 0.5em !important;}
 </style>
 <template>
   <div>
@@ -193,11 +196,11 @@
                 <div class="warpper box-flex1">
                   <ul class="box-flex1 bg-white cut-height">
                     <li class="clearfix">
-                      <span class="ys_tit">特色：</span>
+                      <span class="ys_tit">产权性质：</span>
                     </li>
                     <li class="clearfix bg_gray">
                       <div class="ys_item_con fl">
-                        <span v-for="a in featureArray" class="ys_tag" :class="{'active':tsTag.indexOf(a.id)>-1}" :id="a.id" @click="pickTag($event)">{{a.topic}}</span>
+                        <span v-for="a in chqxz" class="ys_tag" :class="{'active':xzTag.indexOf(a) > -1}" :id="a" @click="pickTag($event)">{{a}}</span>
                       </div>
                     </li>
                   </ul>
@@ -232,26 +235,25 @@
           infinite-scroll-distance="100"
           infinite-scroll-immediate-check="checked">
           <li class="ys_listcon pv15" v-for="item in resultData">
-            <router-link :to="{path:'/detail',query:{building_id:item.id}}" class="supply_box">
+            <router-link :to="{path:'order',query:{house_id:item.id}}" class="supply_box">
               <div class="supply_price">
-                <span>{{item.price}}</span> 元/㎡·天
-                <i v-if="item.lpkzfy > 1" style="display: block">{{item.min_areas}} - {{item.max_areas}}㎡</i>
-                <i v-else style="display: block">{{item.min_areas}}㎡</i>
+                <span>{{item.daily_price === '0.0' ? '' : item.daily_price}}</span> 元/㎡·天
               </div>
               <dl class="supply">
                 <dt>
-                  <img v-if="item.img_path" :src="$prefix + '/' + item.img_path" :alt="item.img_alt">
+                  <img v-if="item.housing_icon" :src="$prefix + '/' + item.housing_icon" :alt="item.img_alt">
                   <img v-else :src="$prefix + '/upload/2017-08-27/6404b4de960b81fc5403c870aefcea34.png'" :alt="item.img_alt">
                 </dt>
-                <dd class="supply_msg_box clearfix">
+                <dd class="supply_msg_box">
                   <dl>
-                    <dd class="supply_house">{{item.building_name}}</dd>
+                    <dd v-if="item.zdh.indexOf('独栋') > -1" class="supply_house">{{item.topic}}&nbsp;&nbsp;{{item.fybh}}</dd>
+                    <dd v-else class="supply_house">{{item.topic}}&nbsp;&nbsp;{{item.zdh}} - {{item.fybh}}</dd>
                     <dd class="supply_color ellipsis">{{item.district}}</dd>
-                    <dd class="supply_color ellipsis">{{item.lpkzfy}}套房源可租</dd>
                     <dd>
-                      <dl class="supply_tag clearfix">
-                        <dd v-if="item.label" v-for="tag in item.label.split(',').slice(0,3)" class="tagClass">{{tag}}</dd>
-                        <dd class="tagClass zc" v-show="item.zc.indexOf('不可') < 0">{{item.zc.indexOf('不可') > -1 ? '': item.zc}}</dd>
+                      <dl class="cell clearfix">
+                        <dd>{{item.housing_area === '0.0' ? '': item.housing_area}}㎡</dd>
+                        <dd v-if="item.lc">{{item.lc}}层</dd>
+                        <dd v-if="item.decoration_level" class="tagClass zc" style="font-size: 0.22rem !important;padding: 0.03rem;">{{item.decoration_level}}</dd>
                       </dl>
                     </dd>
                   </dl>
@@ -303,9 +305,10 @@
         areaArray:["-1", "<100", "100-299", "300-499", "500-599", "1000-1499", ">1500"],
         priceArray:["-1", "<3", "3-4.9", "5-7.9", "8-9.9", "10-14.9", ">=15"],
         featureArray: [],
+        chqxz: ["写字楼","公寓","商务楼","住宅","商业","酒店","综合","别墅","商业综合体","酒店式公寓"],
         priceTag: "",
         areaTag: "",
-        tsTag: [],
+        xzTag: [],
         priceRange: ["", ""],
         areaRange: ["", ""],
         curTab:'',
@@ -327,19 +330,17 @@
           "area": "",
           "price_dj": "",
           "label": "",
+          "chqxz": "",
           "orderby": "D",
           "curr_page": 1,
           "items_perpage": 10,
         },
-        resultData: [],
-        where: ""
+        resultData: []
       }
     },
     mounted(){
-        //jquery中删除style样式
       $("body").removeAttr("style");
       $("html").removeAttr("style");
-      /*console.log("mounted=================",this.para.curr_page);*/
       this.init();
 
       //下滑时，条件tab固定
@@ -364,7 +365,7 @@
       });
     },
     created: function () {
-        /*console.log("created=================",this.para.curr_page);*/
+
     },
     computed: {
       unitword(){
@@ -382,11 +383,9 @@
         if(this.$route['query']['keyword']){
           this.para.search_keywork = this.$route['query']['keyword'];
         }
-
+        $('title').html('房源列表');
         this.resetGetData();
         this.getFilters();
-
-        $('title').html('楼盘列表');
       },
       selectTag(e){
         const target = $(e.target), val = target.attr("value"), t = target.attr("target"), which = t ==="price" ? "priceTag" : "areaTag";
@@ -422,17 +421,17 @@
         const target = $(e.target), id = target.attr("id");
         if(!id){return;}
         if ($(target).hasClass('active')) {
-          let _t = new Set(this.tsTag);
+          let _t = new Set(this.xzTag);
           _t.delete(id);
-          this.tsTag = [..._t];
+          this.xzTag = [..._t];
           $(target).removeClass('active');
         } else {
-          let _t = new Set(this.tsTag);
+          let _t = new Set(this.xzTag);
           _t.add(id);
-          this.tsTag = [..._t];
+          this.xzTag = [..._t];
           $(target).addClass('active');
         }
-        this.para.label = this.tsTag.join(",");
+        this.para.chqxz = this.xzTag.join("、");
       },
       filterFocus(e){
           const target = $(e.target), rel = target.attr("rel");
@@ -468,33 +467,19 @@
 
         if (which === 'reset') {
             this.priceTag = "";
+            this.xzTag = [];
             this.areaTag = "";
-            this.para.price_dj = "";
-            this.para.area = "";
-            this.tsTag = [];
             this.priceRange = ["", ""];
             this.areaRange = ["", ""];
+            this.para.price_dj = "";
+            this.para.area = "";
+            this.para.chqxz = "";
             return;
         }
 
         this.priceFilter = '';
         this.areaFilter = '';
         this.resetGetData();
-      },
-      getTsbq(){
-          Indicator.open({
-             text: '',
-             spinnerType: 'fading-circle'
-          });
-          const url = this.$api + "/yhcms/web/lpjbxx/getTsbq.do";
-          let that = this;
-          this.$http.post(url).then((res)=>{
-            Indicator.close()
-            const data = JSON.parse(res.bodyText).data;
-            that.featureArray = data;
-          }, (res)=>{
-            Indicator.close()
-          });
       },
       searchSubArea:function(code,e){
         this.curTab = "a";
@@ -503,8 +488,9 @@
            text: '',
            spinnerType: 'fading-circle'
         });
+
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
-        li.addClass("highlight").siblings().removeClass("highlight");
+        li.addClass("hilight").siblings().removeClass("hilight");
         this.where = txt;
 
         var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000010"}, this_ = this;
@@ -525,7 +511,7 @@
         });
 
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
-        li.addClass("highlight").siblings().removeClass("highlight");
+        li.addClass("hilight").siblings().removeClass("hilight");
         this.where = txt;
 
         var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000012"}, this_ = this;
@@ -546,7 +532,7 @@
         });
 
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
-        li.addClass("highlight").siblings().removeClass("highlight");
+        li.addClass("hilight").siblings().removeClass("hilight");
         this.where = txt;
 
         var paraObj = {"parameters":{"line_id":line},"foreEndType":2,"code":"30000008"}, this_ = this;
@@ -560,7 +546,7 @@
       },
       setPriceFilter(e){
           const li = $(e.target).closest("li");
-          $(li).addClass("highlight").toggleClass("active-filter");
+          $(li).addClass("hilight").toggleClass("active-filter");
 
           if(this.priceFilter === '' || this.priceFilter === 'P2'){
               this.priceFilter = 'P1';
@@ -577,7 +563,8 @@
       },
       setAreaFilter(e){
           const li = $(e.target).closest("li");
-          $(li).addClass("highlight").toggleClass("active-filter");
+          $(li).addClass("hilight").toggleClass("active-filter");
+
           if(this.areaFilter === '' || this.areaFilter === 'A2'){
               this.areaFilter = 'A1';
           }
@@ -600,11 +587,11 @@
         this.currentFilterTab = 'nth';
       },
       changeRou: function () {
-        this.$router.push({path: '/filter'})
+        this.$router.push({path: '/filter?r=house'})
       },
       searchChoose: function (code, val, value, e) {
         const li = $(e.target).closest('li');
-        li.addClass("highlight").siblings().removeClass("highlight");
+        li.addClass("hilight").siblings().removeClass("hilight");
 
         switch (li.attr('data-type')) {
           case 'positionA':
@@ -613,7 +600,7 @@
             if(value==="不限"){
                 this.para.district1 = code;
                 this.para.business1 = "";
-                 var a = $('h2.district-h').html(this.where || value);
+                $('h2.district-h').html(this.where || value);
             }
             else{
                 this.para.business1 = code;
@@ -719,18 +706,17 @@
         this.getGovDistrict();
         this.getDistrict();
         this.getLines();
-        this.getTsbq();
       },
       chooseFilter: function (e) {
         var e = e || window.event;
         const li = $(e.target).closest('li');
         this.currentFilterTab = li.attr('data-type');
         $(li).siblings().removeClass("active-filter");
-        $(li).siblings().removeClass("highlight");
+        $(li).siblings().removeClass("hilight");
       },
       resetGetData: function () {
         this.noMore = false;
-        this.loading = true;
+        this.loading = false;
 
         this.para.curr_page = 1;
         this.resultData = [];
@@ -740,6 +726,7 @@
            spinnerType: 'fading-circle'
         });
         this.getData();
+
         Indicator.close();
       },
       getData(){
@@ -755,6 +742,7 @@
             "area": this.para.area,
             "price_dj": this.para.price_dj,
             "label": this.para.label,
+            "chqxz": this.para.chqxz,
             "orderby": this.priceFilter || this.areaFilter || "D",
             "curr_page": this.para.curr_page,
             "items_perpage": 10
@@ -763,35 +751,36 @@
           "code": "30000001"
         }, this_ = this;
 
+
         this.currentFilterTab = 'nth';
         let successCb = function (result) {
           Indicator.close();
           this_.loading = false;
-          this_.resultData = this_.resultData.concat(result.data.data.buildings);
-          if (result.data.data < this_.para.items_perpage) {
+
+          this_.resultData = this_.resultData.concat(result.data.data);
+          if (result.data.data.length < this_.para.items_perpage) {
             this_.noMore = true;
           }
           if (this_.resultData.length <= 0) {
             Toast({
               message: '抱歉,暂无符合条件的房源!',
               position: 'middle',
-              duration: 3000
+              duration: 1000
             });
           } else if (this_.resultData.length > 0 && result.data.data.length == 0) {
             Toast({
-              message: '已经获得当前条件的所有楼盘!',
+              message: '已经获得当前条件的所有房源!',
               position: 'middle',
-              duration: 3000
+              duration: 1000
             });
           }
         };
         let errorCb = function (result) {
           Indicator.close();
-          this_.loading = false;
           Toast({
             message: '抱歉,暂无符合条件的房源!',
             position: 'middle',
-            duration: 3000
+            duration: 1000
           });
         };
 
@@ -803,7 +792,7 @@
       },
 
       gRemoteData(paraobj, successcb, errorcb){
-        axios.post('/yhcms/web/lpjbxx/getZdLpjbxx.do', paraobj)
+        axios.post("/yhcms/web/lpjbxx/getWxLbFyxx.do", paraobj)
           .then(function (response) {
             if (typeof successcb === "function") {
               successcb(response)
@@ -814,13 +803,11 @@
           }
         });
       },
-      //这块是干什么的
+
       loadMore(){
-          /*console.log("loadMore1=================",this.para.curr_page);*/
         if (!this.loading && !this.noMore) {
           this.loading = true;
           this.para.curr_page += 1;
-            /*console.log("loadMore2=================",this.para.curr_page);*/
           this.getData();
         }
       }

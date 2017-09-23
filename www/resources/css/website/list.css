@@ -221,7 +221,7 @@
 .bg-white .active a {
   color: #476CBA;
 }
-.bg-white li {
+.bg-white li:not(:last-child) {
   border-bottom: 1px solid #E8E8E8;
 }
 .price-bottom {
@@ -376,7 +376,7 @@
 .supply_tag dd {
   float: left;
   padding: 0 .1rem;
-  margin-right: .06rem;
+  margin-right: .00000001rem;
   margin-bottom: .06rem;
   color: #999;
   background-color: #F1F5FC;

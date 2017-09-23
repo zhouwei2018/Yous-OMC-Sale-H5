@@ -7,30 +7,7 @@
   <div header>
     <!--header start-->
     <header id="header" class="clearfix">
-
-      <label class="side_nav side-nav" @click.native="popupVisible= true" v-on:click="showMenu">
-        <img src="../resources/images/ys_more.png" width="20" alt="">
-      </label>
-      <!-- <a href="javascript:void(0);" class="detail-search">
-          <input type="text" id="keyword" placeholder="请输入关键字搜索" value="" maxlength="50">
-      </a>
-      <i class="location_icon"></i> -->
     </header>
-    <mt-popup v-model="popupVisible" position="left" class="mint-popup-3" :modal="false">
-      <!--左侧登录div-->
-      <div class="main-nav-wrapper sidenav">
-        <div class="user-box clearfix">
-          <img class="portrait" src="../resources/images/lion_logo2.png" alt="">
-          <div class="user_name tc mb20">用户名</div>
-          <div class="ys_function tc">
-            <a href="javascript:;">房源列表</a>
-            <a href="javascript:;">房源信息采集</a>
-            <a href="javascript:;">待办任务</a>
-          </div>
-        </div>
-        <a href="javascript:;" class="log_out_btn">退出登录</a>
-      </div>
-    </mt-popup>
   </div>
   <!--header end-->
 </template>
@@ -43,7 +20,6 @@
       };
     },
     methods: {
-
       showMenu: function () {
         this.popupVisible = true;
         var wwd = $("#section").width();
@@ -101,13 +77,10 @@
         $(".section").animate({
           left: "75%"
         }, 150);
-
       }
-
     },
     mounted: function () {
       var _this = this;
-
     }
   };
 </script>
