@@ -1,6 +1,17 @@
 @import "color";
 
+
 .main-nav-wrapper {
+  position: fixed;
+  left: -100%;
+  width: 63%;
+/*  height: 100%;*/
+  top: 0;
+  display: none;
+  background-color: @cl_white;
+}
+
+/*.main-nav-wrapper {
   position: fixed;
   left: -100%;
   width: 75%;
@@ -8,24 +19,54 @@
   top: 0;
   display: none;
   background-color: #fff;
-}
+}*/
 
 //左侧侧边栏
+
+.sidenav{
+  //background: url("../images/left_bar.png") no-repeat;
+  //background-size: 100% 100%;
+  color: @cl_white;
+  a{
+    color: @cl_white !important;
+  }
+}
+
+.log_out_btn{
+  display: block;
+  width: 2.8rem;
+  height: .8rem;
+  line-height: .8rem;
+  text-align: center;
+  margin: 1.5em auto;
+  background: url("../images/left_list/login_tuichu.png") no-repeat;
+  background-position: 0px -.4rem;
+  background-size: 4rem 1.6rem;
+}
+
 .portrait {
+  width: 1.6rem;
+  height: 1.6rem;
+  display: block;
+  margin: 1.6rem auto .6rem;
+  border-radius: 50%;
+  background-color: @cl_black;
+}
+/*.portrait {
   width: 80px;
   height: 80px;
   display: block;
   margin: 20px auto;
   border-radius: 50%;
   background-color: @cl_black;
-}
+}*/
 
 .ys_function {
   a {
     display: block;
     padding: .3rem 0;
     margin: 0 .4rem;
-    border-bottom: 1px solid @bdc_input;
+   /* border-bottom: 1px solid @bdc_input;*/
   }
 }
 
@@ -36,10 +77,10 @@
   display: block;
   border-radius: .08rem;
   text-align: center;
-  border: 1px solid @cl_black;
+  /*border: 1px solid @cl_black;*/
   position: absolute;
-  left: 50%;
-  bottom: 3rem;
+  left: 30%;
+/*  bottom: 3rem;*/
   margin-left: -1rem;
   &:hover {
     background-color: @cl_black;

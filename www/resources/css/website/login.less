@@ -1,0 +1,121 @@
+@import "../color.less";
+
+#ys_user {
+  background: url("../../images/login/login_bg.png") no-repeat center center;
+  background-size: 100% 100%;
+}
+
+.login_box {
+  width: 5.4rem;
+  margin: 0 auto;
+  margin-top: -1rem;
+}
+
+.all_wrap{
+  position: absolute;
+  width:100%;
+  height:100%;
+  left: 0;
+  top: 0;
+  z-index: 99;
+}
+
+.login_wrap {
+  margin-top: 6rem;
+  .inp_item {
+    width: 100%;
+    height:1.4rem;
+    position: relative;
+    .inp_bg{
+      position: absolute;
+      left: 0;
+      top: .15rem;
+      width: 100%;
+      height: 1.5rem;
+      //background: url("../../images/login/login_inp02.png") no-repeat  left center;
+      background-size: 5.4rem 2.2rem;
+    }
+    &.login {
+      background: url("../../images/login/login_inp02.png") no-repeat  left center;
+      //background-size: 5.4rem 1rem;
+      background-size: 5.55rem 1rem;
+      margin-left: -0.1rem;
+    }
+    .ys_icon {
+      width: .34rem;
+      height: .34rem;
+      position: absolute;
+      left: .3rem;
+      top: .75rem;
+      &.user {
+        background: url("../../images/login/user_icon.png") no-repeat;
+        background-size: .35rem .35rem;
+      }
+
+      &.pass {
+        background: url("../../images/login/pass_icon.png") no-repeat;
+        background-size: .35rem .35rem;
+      }
+    }
+    .ys_icon1 {
+      width: .34rem;
+      height: .34rem;
+      position: absolute;
+      left: .8rem;
+      top: .8rem;
+      &.user {
+        background: url("../../images/login/user_icon22.png") no-repeat;
+        background-size: 1.5px 13px;
+      }
+
+      &.pass {
+        background: url("../../images/login/user_icon22.png") no-repeat;
+        background-size: 1.5px 13px;
+      }
+    }
+    input {
+      height:.8rem;
+      line-height: .8rem;
+      padding-left: 1rem;
+      color: @cl_white;
+      font-size: @font30;
+      position: relative;
+      z-index: 1;
+      width:100%;
+      background-color: rgba(150,178,212, 0.5);
+      &:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+        color: @cl_white;
+      }
+
+      &::-moz-placeholder { /* Mozilla Firefox 19+ */
+        color: @cl_white;
+      }
+
+      &:-ms-input-placeholder {
+        color: @cl_white;
+      }
+
+      &::-webkit-input-placeholder {
+        color: @cl_white;
+      }
+    }
+  }
+}
+
+.ys_btn {
+  display: block;
+  width: 100%;
+  line-height: 1.2rem;
+  height: 1.2rem;
+  text-align: center;
+  color: @cl_white;
+  font-size: @font32;
+}
+
+@media screen and (min-width: 7.5rem) {
+
+  #ys_user {
+    background-size: cover;
+  }
+}
+

@@ -1,3 +1,4 @@
+<script src="../../../omcxsxxlr/www/main.js"></script>
 <style scoped lang="less">
   @import "../resources/css/website/list.less";
   .page-infinite-loading {
@@ -48,8 +49,15 @@
 .supply_msg_box dd.supply_house{margin-top:0 !important}
 .hilight a{color:#476CBA !important}
 .cell > dd{float: left;margin-right: .3rem;margin-bottom: .06rem;}
-  .tagClass{font-size: 0.5em !important;}
-  .zc{background-color:#ef104e !important;color:#FFF !important;font-size: 0.5em !important;}
+.tagClass{font-size: 0.5em !important;}
+.zc{background-color:#ef104e !important;color:#FFF !important;font-size: 0.5em !important;}
+.dj{ background: url("../resources/images/house/dj.png") no-repeat;background-size: 100% 100%;background-color: white !important;}
+.fuc{width: 1rem;height: 1rem;-moz-border-radius: 50px;-webkit-border-radius: 50px;border-radius: 50px;background-color: rgb(255,101,0);margin: auto;display: flex;justify-content: center;align-items: center;}
+.wacfc{width:1.3rem;height:1.3rem;-moz-border-radius: 50px;-webkit-border-radius: 50px;border-radius: 50px;position: fixed;bottom:2rem;right:0.2rem;background-color: rgb(255,191,142);
+  display: flex;//是将布局变为弹性布局
+  align-items: center;//垂直居中
+  justify-content: center;//水平居中
+}
 </style>
 <template>
   <div>
@@ -57,7 +65,7 @@
     <section id="header">
       <header1></header1>
     </section>
-    <a href="javascript:;" class="detail-search" style="position: fixed;left: 0; top: 0">
+    <a href="javascript:;" class="detail-search" style="position: fixed;left: 0; top: 0;border-radius: 0.1rem;">
       <input type="text" id="keyword" placeholder="请输入楼盘关键字搜索" v-model.trim="para.search_keywork" maxlength="50"
              @focus="changeRou">
     </a>
@@ -76,13 +84,13 @@
                     <i class="filt-arrow"></i>
                   </a>
                 </li>
-                <li data-role="filterItem" data-type="price">
+                <li data-role="filterItem" data-type="price" id="jgtjian">
                   <a href="javascript:void(0);" @click="setPriceFilter">
                     <h2 class="ellipsis price-h">价格</h2>
                     <i class="filt-arrow"></i>
                   </a>
                 </li>
-                <li data-role="filterItem" data-type="area">
+                <li data-role="filterItem" data-type="area" id="mjtjian">
                   <a href="javascript:void(0);" @click="setAreaFilter">
                     <h2 class="ellipsis area-h">面积</h2>
                     <i class="filt-arrow"></i>
@@ -97,6 +105,17 @@
                 </li>
               </ul>
             </section>
+
+            <div class="wacfc" v-if="xzfystatus == ''" @click="yzfydj">
+              <div class="fuc">
+                <div style="color: white;">预租<br/>房源</div>
+              </div>
+            </div>
+            <div class="wacfc" v-else @click="yzfydj">
+              <div class="fuc">
+                <div style="color: white;">精选<br/>房源</div>
+              </div>
+            </div>
             <!--筛选条件标题结束-->
 
             <!--筛选条件内容start-->
@@ -116,19 +135,19 @@
                     <div id="position_filter" class="warpper2 box-flex1 bg-white" :class="{choose:this.curTab=='a'||this.curTab=='l'||this.curTab=='y'}">
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='a'}">
                         <li data-type="positionA" @click="where='不限';subBuesiness=[];searchChoose('','','不限', $event)"><a href="javascript:;">不限</a></li>
-                        <li v-for="item in govDistrictArray" data-type="positionA"
+                        <li v-for="item in govDistrictArray" data-type="positionA" :class="{hilight:item.fdcode==his.ercode}"
                             @click="searchSubArea(item.fdcode, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='y'}">
                         <li data-type="positionY" @click="where='不限';otherBusiness=[];searchChoose('','','不限', $event)"><a href="javascript:;">不限</a></li>
-                        <li v-for="item in districtArray" data-type="positionY"
+                        <li v-for="item in districtArray" data-type="positionY" :class="{hilight:item.id==his.ercode}"
                             @click="searchArea(item.id, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='l'}">
                         <li data-type="positionL" @click="where='不限';stationArray=[];searchChoose('','','不限', $event)"><a href="javascript:;">不限</a></li>
-                        <li v-for="item in lineArray" data-type="positionL"
+                        <li v-for="item in lineArray" data-type="positionL" :class="{hilight:item.id==his.ercode}"
                             @click="searchStation(item.id, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
@@ -136,17 +155,17 @@
 
                     <div id="third-tab" class="warpper2 box-flex1 bg-white" :class="{show:this.curTab!=''&&this.thirdpart!=''}">
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='a'}">
-                        <li v-for="item in subBuesiness" data-type="positionA"
+                        <li v-for="item in subBuesiness" data-type="positionA" :class="{hilight:item.fdcode==his.sancode}"
                             @click="searchChoose(item.fdcode,'',item.fdname, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='y'}">
-                        <li v-for="item in otherBusiness" data-type="positionY"
+                        <li v-for="item in otherBusiness" data-type="positionY" :class="{hilight:item.id==his.sancode}"
                             @click="searchChoose(item.id,'',item.fdname, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
                       <ul class="price-ul cut-height" :class="{show:this.curTab!=''&&this.thirdpart=='dt'}">
-                        <li v-for="item in stationArray" data-type="positionL"
+                        <li v-for="item in stationArray" data-type="positionL" :class="{hilight:item.id==his.sancode}"
                             @click="searchChoose(item.id,'',item.fdname, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
@@ -163,7 +182,7 @@
                     </li>
                     <li class="clearfix bg_gray">
                       <div class="ys_item_con fl">
-                        <span v-for="a in areaArray" class="ys_tag" :class="{'active':areaTag===a}" :value="a" target="area" @click="selectTag($event)">{{a !== "-1" ? a + "㎡" : "不限"}}</span>
+                        <span v-for="a in areaArray" class="ys_tag" :class="{'active':areaTag===a || a==areasta}" :value="a" target="area" @click="selectTag($event)">{{a !== "-1" ? a + "㎡" : "不限"}}</span>
                       </div>
                       <div class="ys_item_con fl">
                         <div class="price-bot">
@@ -181,7 +200,7 @@
                     </li>
                     <li class="clearfix bg_gray">
                       <div class="ys_item_con fl">
-                        <span v-for="a in priceArray" class="ys_tag" :class="{'active':priceTag===a}" target="price" :value="a" @click="selectTag($event)">{{a !== "-1" ? a + "元" : "不限"}}</span>
+                        <span v-for="a in priceArray" class="ys_tag" :class="{'active':priceTag===a || a==price}" target="price" :value="a" @click="selectTag($event)">{{a !== "-1" ? a + "元" : "不限"}}</span>
                       </div>
                       <div class="ys_item_con fl">
                         <div class="price-bot">
@@ -200,7 +219,7 @@
                     </li>
                     <li class="clearfix bg_gray">
                       <div class="ys_item_con fl">
-                        <span v-for="a in chqxz" class="ys_tag" :class="{'active':xzTag.indexOf(a) > -1}" :id="a" @click="pickTag($event)">{{a}}</span>
+                        <span v-for="a in chqxz" class="ys_tag" :class="{'active':xzTag.indexOf(a) > -1 || xztagasta.indexOf(a) > -1}" :id="a" @click="pickTag($event)">{{a}}</span>
                       </div>
                     </li>
                   </ul>
@@ -233,9 +252,9 @@
           v-infinite-scroll="loadMore"
           infinite-scroll-disabled="loading"
           infinite-scroll-distance="100"
-          infinite-scroll-immediate-check="checked">
+          infinite-scroll-immediate-check="checked" id="zhezcly">
           <li class="ys_listcon pv15" v-for="item in resultData">
-            <router-link :to="{path:'order',query:{house_id:item.id}}" class="supply_box">
+            <router-link :to="{path:'order',query:{house_id:item.id}}" @click.native="jiyishuj" class="supply_box">
               <div class="supply_price">
                 <span>{{item.daily_price === '0.0' ? '' : item.daily_price}}</span> 元/㎡·天
               </div>
@@ -246,14 +265,23 @@
                 </dt>
                 <dd class="supply_msg_box">
                   <dl>
-                    <dd v-if="item.zdh.indexOf('独栋') > -1" class="supply_house">{{item.topic}}&nbsp;&nbsp;{{item.fybh}}</dd>
-                    <dd v-else class="supply_house">{{item.topic}}&nbsp;&nbsp;{{item.zdh}} - {{item.fybh}}</dd>
+                    <dd v-if="item.zdh.indexOf('独栋') > -1" class="supply_house">{{item.topic}}&nbsp;&nbsp;<label v-if="item.decoration_level == '预租房'">即将上线</label><label v-else>{{item.fybh}}</label></dd>
+                    <dd v-else class="supply_house">{{item.topic}}&nbsp;&nbsp;<label v-if="item.decoration_level == '预租房'">即将上线</label><label v-else>{{item.zdh}} - {{item.fybh}}</label></dd>
                     <dd class="supply_color ellipsis">{{item.district}}</dd>
                     <dd>
-                      <dl class="cell clearfix">
+                      <dl class="cell clearfix" style="width: 5rem;">
                         <dd>{{item.housing_area === '0.0' ? '': item.housing_area}}㎡</dd>
-                        <dd v-if="item.lc">{{item.lc}}层</dd>
+                        <dd v-if="item.decoration_level == '预租房'"></dd><dd v-else-if="item.lc">{{item.lc}}层</dd>
                         <dd v-if="item.decoration_level" class="tagClass zc" style="font-size: 0.22rem !important;padding: 0.03rem;">{{item.decoration_level}}</dd>
+                        <dd v-if="item.djbsh" class="tagClass zc dj" style="font-size: 0.22rem !important;padding: 0.03rem;">{{item.djbsh}}</dd>
+
+                        <dd v-if="item.topic == '嘉盛中心' && item.zdh == '独栋' && item.fybh == 0506" style="position: absolute;z-index: 12;left:0.05rem;width: 0.4rem;bottom:15px;"><img src="../resources/images/house/3d.png" width="100%" height="100%"></dd>
+                        <dd v-if="item.topic == '建外SOHO' && item.zdh == 2 && item.fybh == 705" style="position: absolute;z-index: 12;left:0.05rem;width: 0.4rem;bottom:15px;"><img src="../resources/images/house/3d.png" width="100%" height="100%"></dd>
+                        <dd v-if="item.topic == '天元港中心' && item.zdh == 'B' && item.fybh == 1805" style="position: absolute;z-index: 12;left:0.05rem;width: 0.4rem;bottom:15px;"><img src="../resources/images/house/3d.png" width="100%" height="100%"></dd>
+                        <dd v-if="item.topic == '建外SOHO' && item.zdh == 3 && item.fybh == 2103" style="position: absolute;z-index: 12;left:0.05rem;width: 0.4rem;bottom:15px;"><img src="../resources/images/house/3d.png" width="100%" height="100%"></dd>
+                        <dd v-if="item.topic == '建外SOHO' && item.zdh == 10 && item.fybh == 904" style="position: absolute;z-index: 12;left:0.05rem;width: 0.4rem;bottom:15px;"><img src="../resources/images/house/3d.png" width="100%" height="100%"></dd>
+                        <dd v-if="item.topic == '建外SOHO' && item.zdh == 12 && item.fybh == 2706" style="position: absolute;z-index: 12;left:0.05rem;width: 0.4rem;bottom:15px;"><img src="../resources/images/house/3d.png" width="100%" height="100%"></dd>
+
                       </dl>
                     </dd>
                   </dl>
@@ -294,6 +322,10 @@
     },
     data () {
       return {
+        hist:{},
+        his:'',
+        er:'',
+        xzfystatus:'',
         districtArray: [],
         govDistrictArray: [],
         lineArray:[],
@@ -305,12 +337,14 @@
         areaArray:["-1", "<100", "100-299", "300-499", "500-599", "1000-1499", ">1500"],
         priceArray:["-1", "<3", "3-4.9", "5-7.9", "8-9.9", "10-14.9", ">=15"],
         featureArray: [],
-        chqxz: ["写字楼","公寓","商务楼","住宅","商业","酒店","综合","别墅","商业综合体","酒店式公寓"],
+        //chqxz: ["写字楼","公寓","商务楼","住宅","商业","酒店","综合","别墅","商业综合体","酒店式公寓"],
+        chqxz: ["写字楼","公寓","商务楼","商业"],
         priceTag: "",
         areaTag: "",
         xzTag: [],
         priceRange: ["", ""],
         areaRange: ["", ""],
+        xztagasta:[],
         curTab:'',
         thirdpart:'',
         currentFilterTab: 'nth',
@@ -319,6 +353,9 @@
         loading: false,
         noMore: false,
         checked: false,
+        areasta:'',
+        price:'',
+        status:'',
         para: {
           "search_keywork": "",
           "district": "",
@@ -335,14 +372,130 @@
           "curr_page": 1,
           "items_perpage": 10,
         },
-        resultData: []
+        resultData: [],
+        resultData1: []
       }
     },
     mounted(){
+      if(localStorage.getItem("xzfystatus1")){
+          this.xzfystatus = localStorage.getItem("xzfystatus1").replace("\"","").replace("\"","");
+      }
+      if(localStorage.getItem("fhdata1") && localStorage.getItem("xzqv")){
+              this.resultData = localStorage.getItem("fhdata1");
+              this.para.district = localStorage.getItem("xzqv").replace("\"", "").replace("\"", "");
+              this.para.business = localStorage.getItem("sq").replace("\"", "").replace("\"", "");
+              this.para.district1 = localStorage.getItem("ywqv").replace("\"", "").replace("\"", "");
+              this.para.business1 = localStorage.getItem("fq").replace("\"", "").replace("\"", "");
+              this.para.line_id = localStorage.getItem("xl").replace("\"", "").replace("\"", "");
+              this.para.station_id = localStorage.getItem("zd").replace("\"", "").replace("\"", "");
+            /*if(this.para.district == '' && this.para.business == '' && this.para.district1 == '' && this.para.business1 == '' && this.para.line_id == '' && this.para.station_id == ''){
+              alert(5555);
+
+          }else{
+              alert(6666);
+              this.searchArea();
+              this.searchChoose();
+          }*/
+              this.para.area = localStorage.getItem("mj").replace("\"", "").replace("\"", "");
+
+
+              if(localStorage.getItem("price")){
+                /*对于缓存的判断时要考虑他的双重引号*/
+                  this.price = JSON.parse(localStorage.getItem("price"));
+                /*localStorage.removeItem("price");*/
+          }
+              if(localStorage.getItem("areasta")){
+                /*对于缓存的判断时要考虑他的双重引号*/
+                  this.areasta = JSON.parse(localStorage.getItem("areasta"));
+                /* localStorage.removeItem("areasta");*/
+          }
+
+
+              this.para.price_dj = localStorage.getItem("jg").replace("\"", "").replace("\"", "");
+              this.para.chqxz = localStorage.getItem("chqxz").replace("\"", "").replace("\"", "");
+              this.priceFilter  = localStorage.getItem("px").replace("\"", "").replace("\"", "");
+
+
+              this.xzfystatus = localStorage.getItem("xzfystatus").replace("\"", "").replace("\"", "");
+              if(localStorage.getItem("hist")){
+                  this.his = JSON.parse(localStorage.getItem("hist"));
+                  this.positionType = this.his.yicode;
+                  this.thirdpart = this.his.sicoole;
+                  this.curTab = this.his.wucoole;
+                  if(this.positionType == "a"){
+                      this.searchSubAreafh(this.his.ercode);
+              }
+                  else if(this.positionType == "y"){
+                  this.searchAreafh(this.his.ercode);
+              }else{
+                  this.searchStationfh(this.his.ercode);
+              }
+                /*localStorage.removeItem("hist");*/
+          }
+          if(localStorage.getItem("jgtjian")){
+              if(localStorage.getItem("jgtjian") == 1){
+                  this.setPriceFilterfh();
+              }
+              if(localStorage.getItem("jgtjian") == 2){
+                  this.setAreaFilterfh();
+              }
+              /*localStorage.removeItem("jgtjian");*/
+          }
+          if(localStorage.getItem("xztagasta")){
+
+              this.xztagasta = localStorage.getItem("xztagasta").replace("\"","").replace("\"","");
+              /*localStorage.removeItem("xztagasta");*/
+          }
+        /*取出缓存中的数组*/
+        if(localStorage.getItem("areaRange")){
+            this.areaRange  = JSON.parse(localStorage.getItem("areaRange"));
+          /*localStorage.removeItem("areaRange");*/
+        }
+        if(localStorage.getItem("priceRange")){
+            this.priceRange  = JSON.parse(localStorage.getItem("priceRange"));
+           /* localStorage.removeItem("priceRange");*/
+        }
+
+
+
+
+
+
+
+          var topsl = localStorage.getItem("topsj1");
+          //$("body,html").scrollTop(topsl);
+          $('body,html').animate({scrollTop:topsl},2);//设置距离上面顶部的距离
+          //$("document").scrollTop(topsl);
+          this.resultData = JSON.parse(this.resultData);
+          localStorage.removeItem("fhdata1");
+          localStorage.removeItem("topsj1");
+          this.getFilters();
+          this.para.curr_page = localStorage.getItem("page1");
+          this.para.curr_page = parseInt(this.para.curr_page);
+          localStorage.removeItem("page1");
+          localStorage.removeItem("xzqv");
+          localStorage.removeItem("sq");
+          localStorage.removeItem("ywqv");
+          localStorage.removeItem("fq");
+          localStorage.removeItem("xl");
+          localStorage.removeItem("zd");
+          localStorage.removeItem("mj");
+          localStorage.removeItem("jg");
+          localStorage.removeItem("chqxz");
+          localStorage.removeItem("px");
+      }else{
+          localStorage.removeItem("price");
+          localStorage.removeItem("areasta");
+          localStorage.removeItem("hist");
+          localStorage.removeItem("jgtjian");
+          localStorage.removeItem("xztagasta");
+          localStorage.removeItem("areaRange");
+          localStorage.removeItem("priceRange");
+          this.init();
+      }
       $("body").removeAttr("style");
       $("html").removeAttr("style");
-      this.init();
-
+      $('title').html('房源列表');
       //下滑时，条件tab固定
       $(window).scroll(function () {
         if ($(window).scrollTop() > 0) {
@@ -377,18 +530,66 @@
       }
     },
     methods: {
+      jiyishuj(){
+          for(var i=0;i<this.resultData.length;i++){
+              if(this.resultData[i].bsh != ''){
+                  this.resultData1[i] = this.resultData[i]
+              }
+          }
+          localStorage.setItem('fhdata1', JSON.stringify(this.resultData1));
+          localStorage.setItem('topsj1', JSON.stringify($(window).scrollTop()));
+          localStorage.setItem('page1', JSON.stringify(this.para.curr_page));
+          localStorage.setItem('xzqv', JSON.stringify(this.para.district));
+          localStorage.setItem('sq', JSON.stringify(this.para.business));
+          localStorage.setItem('ywqv', JSON.stringify(this.para.district1));
+          localStorage.setItem('fq', JSON.stringify(this.para.business1));
+          localStorage.setItem('xl', JSON.stringify(this.para.line_id));
+          localStorage.setItem('zd', JSON.stringify(this.para.station_id));
+          localStorage.setItem('mj', JSON.stringify(this.para.area));
+          localStorage.setItem('jg', JSON.stringify(this.para.price_dj));
+          localStorage.setItem('xzfystatus', JSON.stringify(this.xzfystatus));
+          localStorage.setItem('chqxz', JSON.stringify(this.para.chqxz));
+          if(this.priceFilter != ''){
+              localStorage.setItem('px', JSON.stringify(this.priceFilter));
+          }else if(this.areaFilter != ''){
+              localStorage.setItem('px', JSON.stringify(this.areaFilter));
+          }else{
+              localStorage.setItem('px', JSON.stringify("D"));
+          }
+      },
+
       init(){
         axios.defaults.baseURL = this.$api; 
         axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
         if(this.$route['query']['keyword']){
           this.para.search_keywork = this.$route['query']['keyword'];
         }
-        $('title').html('房源列表');
         this.resetGetData();
         this.getFilters();
       },
+      yzfydj(){
+          this.para.curr_page = 1;
+          if(this.xzfystatus == ""){
+              this.resultData = [];
+              this.xzfystatus = 1;
+              this.getData();
+          }else{
+              this.xzfystatus = "";
+              this.resultData = [];
+              this.getData();
+          }
+          localStorage.setItem('xzfystatus1', JSON.stringify(this.xzfystatus));
+      },
       selectTag(e){
         const target = $(e.target), val = target.attr("value"), t = target.attr("target"), which = t ==="price" ? "priceTag" : "areaTag";
+        if(t == 'area'){
+            localStorage.setItem('areasta', JSON.stringify(val));
+        }else if(t == 'price'){
+            localStorage.setItem('price', JSON.stringify(val));
+        }else{
+            this.areasta = '';
+            this.price = '';
+        }
         const range = t ==="price" ? "price_dj" : "area";
         let final = val === "-1" ? "" : val.replace("<","0-").replace(">","").replace("=","").split("-"); 
         if(val !== "-1" && final.length < 2){
@@ -431,6 +632,7 @@
           this.xzTag = [..._t];
           $(target).addClass('active');
         }
+        localStorage.setItem('xztagasta', JSON.stringify(this.xzTag));
         this.para.chqxz = this.xzTag.join("、");
       },
       filterFocus(e){
@@ -442,6 +644,9 @@
           else if(rel === "area"){
               $.each($("span[target='area']"), (idx, item)=>{$(item).removeClass("active");});
               this.para.area = "";
+          }
+          if(rel === "price"){
+
           }
       },
       setFilter(e){
@@ -474,9 +679,14 @@
             this.para.price_dj = "";
             this.para.area = "";
             this.para.chqxz = "";
+            this.xztagasta = [];
+            this.price = "";
+            this.areasta = "";
             return;
         }
-
+        /*向缓存中存入数组*/
+        localStorage.setItem('priceRange', JSON.stringify(this.priceRange));
+        localStorage.setItem('areaRange', JSON.stringify(this.areaRange));
         this.priceFilter = '';
         this.areaFilter = '';
         this.resetGetData();
@@ -488,11 +698,12 @@
            text: '',
            spinnerType: 'fading-circle'
         });
-
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
         li.addClass("hilight").siblings().removeClass("hilight");
+        this.hist.ercode = code;
+        this.er = code;
         this.where = txt;
-
+        this.hist.txt = txt;
         var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000010"}, this_ = this;
         axios.post('/yhcms/web/lpjbxx/getLpXzqyFq.do', paraObj)
           .then(function (response) {
@@ -502,6 +713,19 @@
             Indicator.close();
         });
       },
+      searchSubAreafh:function(code){
+          this.er = code;
+          this.where = this.his.txt;
+          $('h2.district-h').html(this.where);
+          var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000010"}, this_ = this;
+          axios.post('/yhcms/web/lpjbxx/getLpXzqyFq.do', paraObj)
+              .then(function (response) {
+                  Indicator.close();
+                  this_.subBuesiness = [{"fdcode":code,"fdname":"不限"}].concat(response.data.data.xzfq);
+              }).catch(function (error) {
+              Indicator.close();
+          });
+      },
       searchArea:function(code,e){
         this.curTab = "y";
         this.thirdpart = "sq";
@@ -509,11 +733,12 @@
            text: '',
            spinnerType: 'fading-circle'
         });
-
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
         li.addClass("hilight").siblings().removeClass("hilight");
         this.where = txt;
-
+        this.hist.ercode = code;
+        this.er = code;
+        this.hist.txt = txt;
         var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000012"}, this_ = this;
         axios.post('/yhcms/web/lpjbxx/getLpYwqyFq.do', paraObj)
           .then(function (response) {
@@ -523,6 +748,19 @@
             Indicator.close();
         });
       },
+      searchAreafh:function(code){
+          this.er = code;
+          this.where = this.his.txt;
+          $('h2.district-h').html(this.where);
+          var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000012"}, this_ = this;
+          axios.post('/yhcms/web/lpjbxx/getLpYwqyFq.do', paraObj)
+              .then(function (response) {
+                  Indicator.close();
+                  this_.otherBusiness = [{"id":code,"fdname":"不限"}].concat(response.data.data.ywfq);
+              }).catch(function (error) {
+              Indicator.close();
+          });
+      },
       searchStation:function(line,e){
         this.curTab = "l";
         this.thirdpart = "dt";
@@ -530,11 +768,16 @@
            text: '',
            spinnerType: 'fading-circle'
         });
-
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
         li.addClass("hilight").siblings().removeClass("hilight");
+        this.hist.ercode = line;
+        this.er = line;
         this.where = txt;
-
+        if(txt != "不限"){
+            this.hist.txt = txt;
+        }else{
+            this.hist.txt = "不限";
+        }
         var paraObj = {"parameters":{"line_id":line},"foreEndType":2,"code":"30000008"}, this_ = this;
         axios.post('/yhcms/web/lpjbxx/getLpSubwaystation.do', paraObj)
           .then(function (response) {
@@ -543,6 +786,19 @@
           }).catch(function (error) {
             Indicator.close();
         });
+      },
+      searchStationfh:function(line){
+          this.er = line;
+          this.where = this.his.txt;
+          $('h2.district-h').html(this.where);
+          var paraObj = {"parameters":{"line_id":line},"foreEndType":2,"code":"30000008"}, this_ = this;
+          axios.post('/yhcms/web/lpjbxx/getLpSubwaystation.do', paraObj)
+              .then(function (response) {
+                  Indicator.close();
+                  this_.stationArray = [{"id":line,"fdname":"不限"}].concat(response.data.data.subway_station);
+              }).catch(function (error) {
+              Indicator.close();
+          });
       },
       setPriceFilter(e){
           const li = $(e.target).closest("li");
@@ -555,16 +811,21 @@
               this.priceFilter = 'P2';
           }
           this.areaFilter = '';
-
+          localStorage.setItem('jgtjian',1);
           const that = this;
           setTimeout(function(){
               that.resetGetData();
           }, 500);
       },
+      setPriceFilterfh(){
+          $('#jgtjian').addClass("hilight");
+          if(this.priceFilter == 'P1'){
+              $('#jgtjian').addClass("active-filter");
+          }
+      },
       setAreaFilter(e){
           const li = $(e.target).closest("li");
           $(li).addClass("hilight").toggleClass("active-filter");
-
           if(this.areaFilter === '' || this.areaFilter === 'A2'){
               this.areaFilter = 'A1';
           }
@@ -572,11 +833,17 @@
               this.areaFilter = 'A2';
           }
           this.priceFilter = '';
-
+          localStorage.setItem('jgtjian',2);
           const that = this;
           setTimeout(function(){
               that.resetGetData();
           }, 500);
+      },
+      setAreaFilterfh(){
+          $('#mjtjian').addClass("hilight");
+          if(this.priceFilter == 'A1'){
+              $('#mjtjian').addClass("active-filter");
+          }
       },
       getQueryString: function (key) {
         var t = new RegExp("(^|&)" + key + "=([^&]*)(&|$)", "i"),
@@ -587,12 +854,22 @@
         this.currentFilterTab = 'nth';
       },
       changeRou: function () {
-        this.$router.push({path: '/filter?r=house'})
+        this.$router.push({path: '/filter?r=house', query: {keyword33:this.para.search_keywork}})
       },
       searchChoose: function (code, val, value, e) {
         const li = $(e.target).closest('li');
-        li.addClass("hilight").siblings().removeClass("hilight");
+        if(value == "不限"){
 
+        }else{
+            this.hist.txt = value;
+        }
+        li.addClass("hilight").siblings().removeClass("hilight");
+        this.hist.ercode = this.er;
+        this.hist.sancode = code;
+        this.hist.sicoole = this.thirdpart;
+        this.hist.wucoole = this.curTab;
+        this.hist.yicode = this.positionType;
+        localStorage.setItem('hist', JSON.stringify(this.hist));
         switch (li.attr('data-type')) {
           case 'positionA':
             //行政区域
@@ -713,11 +990,16 @@
         this.currentFilterTab = li.attr('data-type');
         $(li).siblings().removeClass("active-filter");
         $(li).siblings().removeClass("hilight");
+        if(this.currentFilterTab=='features' || this.currentFilterTab=='district'){
+            this.areaFilter = '';
+            this.priceFilter = '';
+            localStorage.removeItem("jgtjian");
+        }
       },
       resetGetData: function () {
         this.noMore = false;
         this.loading = false;
-
+        $("#zhezhaoc").remove();
         this.para.curr_page = 1;
         this.resultData = [];
 
@@ -733,33 +1015,40 @@
         const paraObj = {
           "parameters": {
             "search_keywork": this.para.search_keywork,
-            "district": this.para.district,
-            "business": this.para.business,
-            "district1": this.para.district1,
-            "business1": this.para.business1,
-            "line_id": this.para.line_id,
-            "station_id": this.para.station_id,
-            "area": this.para.area,
-            "price_dj": this.para.price_dj,
+            "district": this.para.district,//行政区域
+            "business": this.para.business,//商圈
+            "district1": this.para.district1,//业务区域
+            "business1": this.para.business1,//分区
+            "line_id": this.para.line_id,//线路
+            "station_id": this.para.station_id,//站点
+            "area": this.para.area,//面积
+            "price_dj": this.para.price_dj,//价格
             "label": this.para.label,
-            "chqxz": this.para.chqxz,
-            "orderby": this.priceFilter || this.areaFilter || "D",
-            "curr_page": this.para.curr_page,
-            "items_perpage": 10
+            "chqxz": this.para.chqxz,//产权性质
+            "orderby": this.priceFilter || this.areaFilter || "D",//按什么排序
+            "curr_page": this.para.curr_page,//当前的页数
+            "items_perpage": 10//每次传递的几天数据
           },
           "foreEndType": 2,
           "code": "30000001"
         }, this_ = this;
-
-
         this.currentFilterTab = 'nth';
         let successCb = function (result) {
           Indicator.close();
           this_.loading = false;
+          $("#zhezhaoc").remove();
+          if(result.data.data.length == 0){
 
-          this_.resultData = this_.resultData.concat(result.data.data);
+          }else{
+              this_.resultData = this_.resultData.concat(result.data.data);
+          }
+          for(var i=0;i<this_.resultData.length;i++){
+              if(this_.resultData[i].djbsh == 1){
+                  this_.resultData[i].djbsh = "定金";
+              }
+          }
           if (result.data.data.length < this_.para.items_perpage) {
-            this_.noMore = true;
+            this_.noMore = false;
           }
           if (this_.resultData.length <= 0) {
             Toast({
@@ -792,22 +1081,51 @@
       },
 
       gRemoteData(paraobj, successcb, errorcb){
-        axios.post("/yhcms/web/lpjbxx/getWxLbFyxx.do", paraobj)
-          .then(function (response) {
-            if (typeof successcb === "function") {
-              successcb(response)
-            }
-          }).catch(function (error) {
-          if (typeof errorcb === "function") {
-            errorcb(error)
+          if(this.xzfystatus == ""){
+              axios.post("/yhcms/web/lpjbxx/getWxLbFyxx1.do", paraobj)
+                  .then(function (response) {
+                      if (typeof successcb === "function") {
+                          successcb(response)
+                      }
+                  }).catch(function (error) {
+                  if (typeof errorcb === "function") {
+                      errorcb(error)
+                  }
+              });
+          }else{
+              axios.post("/yhcms/web/lpjbxx/getWxLbFyxx.do", paraobj)
+                  .then(function (response) {
+                      if (typeof successcb === "function") {
+                          successcb(response)
+                      }
+                  }).catch(function (error) {
+                  if (typeof errorcb === "function") {
+                      errorcb(error)
+                  }
+              });
           }
-        });
+
       },
 
       loadMore(){
         if (!this.loading && !this.noMore) {
           this.loading = true;
-          this.para.curr_page += 1;
+          var wwd = $(window).width();
+          var wgd = $('#zhezcly').height() + 120;
+          $("body").prepend('<div id="zhezhaoc"></div>');
+          $("#zhezhaoc").css({
+              width: "" + wwd + "px",
+              height: "" + wgd + "px",
+              "background-color": "#FFFFFF",
+              "z-index": "1200",
+              opacity: "0",
+              position: "absolute",
+              top: "0px",
+              left: "0px",
+              "overflow":"hidden",
+          });
+          this.para.curr_page = parseInt(this.para.curr_page);
+          this.para.curr_page += parseInt(1);
           this.getData();
         }
       }

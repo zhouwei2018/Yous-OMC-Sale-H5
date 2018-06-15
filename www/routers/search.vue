@@ -149,7 +149,7 @@
             <li v-for="item in hotArray" @click="toListw(item.name)">{{item.name}}</li>
           </ul>
         </div>
-        <div class="pr history-out">
+        <!--<div class="pr history-out">
           <h3 class="more-house-title mt10 mb15">历史搜索</h3>
           <a href="javascript:;" class="del-btn" @click="clearHistoty">
             <img src="../resources/images/list/del-icon.png" alt="清除">
@@ -157,7 +157,7 @@
           <ul class="search-list clearfix historyArray">
             <li v-for="item in historyArray" @click="toListw(item.name)">{{item.name}}</li>
           </ul>
-        </div>
+        </div>-->
         <ul class="result-search">
           <li class="clearfix">
             <span class="ellipsis">北京万达广场</span>
@@ -250,8 +250,9 @@
           {name:"银河soho"},
         ],
         hotArray:[
-          {name:"望京soho"},
-          {name:"盈科中心"}
+          {name:"建外SOHO"},
+          {name:"住邦2000"},
+          {name:"万达广场"}
         ],
         resultData: [],
         r: ""
@@ -268,10 +269,13 @@
     },
     methods:{
       init(){
+          if(this.$route.query.keyword33){
+              this.search_keyword = this.$route.query.keyword33;
+          }
         axios.defaults.baseURL = this.$api;
         axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
         const r = this.$route.query.r;
-        this.r = !r ? "" : r; 
+        this.r = !r ? "" : r;
       },
       clearHistoty:function(){
            this.historyArray = [];
@@ -283,11 +287,13 @@
       },
       toList:function(){
         this.$router.push({path: '/' + this.r});
+          //history.go(-1);
       },
       toList2:function(){
         if(this.search_keyword){
              this.changeHistory(this.search_keyword);
         }
+
         this.$router.push({path: '/' + this.r, query: {keyword: this.search_keyword}});
       },
       find:function(){

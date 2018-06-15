@@ -1,3 +1,4 @@
+<!--
 <style scoped>
     .c1{
         border:1px solid red;
@@ -21,3 +22,4 @@
     import { Swipe, SwipeItem } from 'mint-ui';
 
 </script>
+-->

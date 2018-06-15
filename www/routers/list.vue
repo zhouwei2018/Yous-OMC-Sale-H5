@@ -47,6 +47,9 @@
 .zc{background-color:#ef104e !important;color:#FFF !important;font-size: 0.5em !important;}
 .highlight a{color:#476CBA !important}
 .tagClass{font-size: 0.5em !important;}
+.zhezhaoc{
+  border:1px solid red;background-color: #ooo !important; opacity:0.5 !important;}
+
 </style>
 <template>
   <div>
@@ -54,7 +57,7 @@
     <section id="header">
       <header1></header1>
     </section>
-    <a href="javascript:;" class="detail-search" style="position: fixed;left: 0; top: 0">
+    <a href="javascript:;" class="detail-search" style="position: fixed;left: 0; top: 0;border-radius: .1rem;">
       <input type="text" id="keyword" placeholder="请输入楼盘关键字搜索" v-model.trim="para.search_keywork" maxlength="50"
              @focus="changeRou">
     </a>
@@ -73,13 +76,13 @@
                     <i class="filt-arrow"></i>
                   </a>
                 </li>
-                <li data-role="filterItem" data-type="price">
+                <li data-role="filterItem" data-type="price" id="jgtjian">
                   <a href="javascript:void(0);" @click="setPriceFilter">
                     <h2 class="ellipsis price-h">价格</h2>
                     <i class="filt-arrow"></i>
                   </a>
                 </li>
-                <li data-role="filterItem" data-type="area">
+                <li data-role="filterItem" data-type="area" id="mjtjian">
                   <a href="javascript:void(0);" @click="setAreaFilter">
                     <h2 class="ellipsis area-h">面积</h2>
                     <i class="filt-arrow"></i>
@@ -94,6 +97,7 @@
                 </li>
               </ul>
             </section>
+
             <!--筛选条件标题结束-->
 
             <!--筛选条件内容start-->
@@ -110,40 +114,41 @@
                     <li class="price-sub" :class="{act:this.positionType=='l'}" @click="positionType='l';curTab=''">
                       <a href="javascript:void(0);" style="color: #302F35;">地铁</a>
                     </li>
+                    <!--第二级的数据-->
                     <div id="position_filter" class="warpper2 box-flex1 bg-white" :class="{choose:this.curTab=='a'||this.curTab=='l'||this.curTab=='y'}">
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='a'}">
                         <li data-type="positionA" @click="where='不限';subBuesiness=[];searchChoose('','','不限', $event)"><a href="javascript:;">不限</a></li>
-                        <li v-for="item in govDistrictArray" data-type="positionA"
+                        <li v-for="item in govDistrictArray" data-type="positionA" :class="{highlight:item.fdcode==his.ercode}"
                             @click="searchSubArea(item.fdcode, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='y'}">
                         <li data-type="positionY" @click="where='不限';otherBusiness=[];searchChoose('','','不限', $event)"><a href="javascript:;">不限</a></li>
-                        <li v-for="item in districtArray" data-type="positionY"
+                        <li v-for="item in districtArray" data-type="positionY" :class="{highlight:item.id==his.ercode}"
                             @click="searchArea(item.id, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='l'}">
                         <li data-type="positionL" @click="where='不限';stationArray=[];searchChoose('','','不限', $event)"><a href="javascript:;">不限</a></li>
-                        <li v-for="item in lineArray" data-type="positionL"
+                        <li v-for="item in lineArray" data-type="positionL" :class="{highlight:item.id==his.ercode}"
                             @click="searchStation(item.id, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
                     </div>
-
+                    <!--第三级的数据-->
                     <div id="third-tab" class="warpper2 box-flex1 bg-white" :class="{show:this.curTab!=''&&this.thirdpart!=''}">
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='a'}">
-                        <li v-for="item in subBuesiness" data-type="positionA"
+                        <li v-for="item in subBuesiness" data-type="positionA" :class="{highlight:item.fdcode==his.sancode}"
                             @click="searchChoose(item.fdcode,'',item.fdname, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
                       <ul class="price-ul cut-height" :class="{show:this.positionType=='y'}">
-                        <li v-for="item in otherBusiness" data-type="positionY"
+                        <li v-for="item in otherBusiness" data-type="positionY" :class="{highlight:item.id==his.sancode}"
                             @click="searchChoose(item.id,'',item.fdname, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
                       <ul class="price-ul cut-height" :class="{show:this.curTab!=''&&this.thirdpart=='dt'}">
-                        <li v-for="item in stationArray" data-type="positionL"
+                        <li v-for="item in stationArray" data-type="positionL" :class="{highlight:item.id==his.sancode}"
                             @click="searchChoose(item.id,'',item.fdname, $event)">
                           <a href="javascript:;">{{item.fdname}}</a></li>
                       </ul>
@@ -160,7 +165,7 @@
                     </li>
                     <li class="clearfix bg_gray">
                       <div class="ys_item_con fl">
-                        <span v-for="a in areaArray" class="ys_tag" :class="{'active':areaTag===a}" :value="a" target="area" @click="selectTag($event)">{{a !== "-1" ? a + "㎡" : "不限"}}</span>
+                        <span v-for="a in areaArray" class="ys_tag" :class="{'active':areaTag===a || a==areasta}" :value="a" target="area" @click="selectTag($event)">{{a !== "-1" ? a + "㎡" : "不限"}}</span>
                       </div>
                       <div class="ys_item_con fl">
                         <div class="price-bot">
@@ -178,7 +183,7 @@
                     </li>
                     <li class="clearfix bg_gray">
                       <div class="ys_item_con fl">
-                        <span v-for="a in priceArray" class="ys_tag" :class="{'active':priceTag===a}" target="price" :value="a" @click="selectTag($event)">{{a !== "-1" ? a + "元" : "不限"}}</span>
+                        <span v-for="a in priceArray" class="ys_tag" :class="{'active':priceTag===a || a==price}" target="price" :value="a" @click="selectTag($event)">{{a !== "-1" ? a + "元" : "不限"}}</span>
                       </div>
                       <div class="ys_item_con fl">
                         <div class="price-bot">
@@ -197,7 +202,7 @@
                     </li>
                     <li class="clearfix bg_gray">
                       <div class="ys_item_con fl">
-                        <span v-for="a in featureArray" class="ys_tag" :class="{'active':tsTag.indexOf(a.id)>-1}" :id="a.id" @click="pickTag($event)">{{a.topic}}</span>
+                        <span v-for="a in featureArray" class="ys_tag" :class="{'active':tsTag.indexOf(a.id)>-1 || xztagasta.indexOf(a.id) > -1}" :id="a.id" @click="pickTag($event)">{{a.topic}}</span>
                       </div>
                     </li>
                   </ul>
@@ -230,9 +235,9 @@
           v-infinite-scroll="loadMore"
           infinite-scroll-disabled="loading"
           infinite-scroll-distance="100"
-          infinite-scroll-immediate-check="checked">
+          infinite-scroll-immediate-check="checked" id="zhezcly">
           <li class="ys_listcon pv15" v-for="item in resultData">
-            <router-link :to="{path:'/detail',query:{building_id:item.id}}" class="supply_box">
+            <router-link :to="{path:'/detail',query:{building_id:item.id}}" @click.native="jiyishuj" class="supply_box">
               <div class="supply_price">
                 <span>{{item.price}}</span> 元/㎡·天
                 <i v-if="item.lpkzfy > 1" style="display: block">{{item.min_areas}} - {{item.max_areas}}㎡</i>
@@ -292,6 +297,12 @@
     },
     data () {
       return {
+        areasta:'',
+        price:'',
+        hist:{},
+        his:'',
+        er:'',
+        xztagasta:[],
         districtArray: [],
         govDistrictArray: [],
         lineArray:[],
@@ -316,6 +327,7 @@
         loading: false,
         noMore: false,
         checked: false,
+        status:'',
         para: {
           "search_keywork": "",
           "district": "",
@@ -336,11 +348,166 @@
       }
     },
     mounted(){
+        if(localStorage.getItem("fhdata") && localStorage.getItem("xzqv")){
+            this.resultData = localStorage.getItem("fhdata");
+            var topsl = localStorage.getItem("topsj");
+            $('body,html').animate({scrollTop:topsl},2);//设置距离上面顶部的距离
+            this.resultData = JSON.parse(this.resultData);
+            this.para.district = localStorage.getItem("xzqv").replace("\"","").replace("\"","");
+            this.para.business = localStorage.getItem("sq").replace("\"","").replace("\"","");
+            this.para.district1 = localStorage.getItem("ywqv").replace("\"","").replace("\"","");
+            this.para.business1 = localStorage.getItem("fq").replace("\"","").replace("\"","");
+            this.para.line_id = localStorage.getItem("xl").replace("\"","").replace("\"","");
+            this.para.station_id = localStorage.getItem("zd").replace("\"","").replace("\"","");
+            this.para.area = localStorage.getItem("mj").replace("\"","").replace("\"","");
+            this.para.price_dj = localStorage.getItem("jg").replace("\"","").replace("\"","");
+            this.priceFilter  = localStorage.getItem("px").replace("\"","").replace("\"","");
+
+
+
+
+
+            if(localStorage.getItem("areastalist")){
+              /*对于缓存的判断时要考虑他的双重引号*/
+                this.areasta = JSON.parse(localStorage.getItem("areastalist"));
+                /*localStorage.removeItem("areasta");*/
+            }
+            if(localStorage.getItem("pricelist")){
+              /*对于缓存的判断时要考虑他的双重引号*/
+                this.price = JSON.parse(localStorage.getItem("pricelist"));
+                /*localStorage.removeItem("price");*/
+            }
+            if(localStorage.getItem("histlist")){
+                this.his = JSON.parse(localStorage.getItem("histlist"));
+                this.positionType = this.his.yicode;
+                this.thirdpart = this.his.sicoole;
+                this.curTab = this.his.wucoole;
+                if(this.positionType == "a"){
+                    this.searchSubAreafh(this.his.ercode);
+                }else if(this.positionType == "y"){
+                    this.searchAreafh(this.his.ercode);
+                }else{
+                    this.searchStationfh(this.his.ercode);
+                }
+                /*localStorage.removeItem("histlist");*/
+            }
+            if(localStorage.getItem("jgtjianlist")){
+                if(localStorage.getItem("jgtjianlist") == 1){
+                    this.setPriceFilterfh();
+                }
+                if(localStorage.getItem("jgtjianlist") == 2){
+                    this.setAreaFilterfh();
+                }
+                /*localStorage.removeItem("jgtjianlist");*/
+            }
+            if(localStorage.getItem("xztagastalist")){
+                this.xztagasta = localStorage.getItem("xztagastalist");
+                /*localStorage.removeItem("xztagastalist");*/
+            }
+          /*取出缓存中的数组*/
+            if(localStorage.getItem("areaRangelist")){
+                this.areaRange  = JSON.parse(localStorage.getItem("areaRangelist"));
+                /*localStorage.removeItem("areaRangelist");*/
+            }
+            if(localStorage.getItem("priceRangelist")){
+                this.priceRange  = JSON.parse(localStorage.getItem("priceRangelist"));
+                /*localStorage.removeItem("priceRangelist");*/
+            }
+
+
+
+
+
+
+            localStorage.removeItem("fhdata");
+            localStorage.removeItem("topsj");
+            this.getFilters();
+            this.para.curr_page = localStorage.getItem("page");
+            this.para.curr_page = parseInt(this.para.curr_page);
+            localStorage.removeItem("page");
+            localStorage.removeItem("xzqv");
+            localStorage.removeItem("sq");
+            localStorage.removeItem("ywqv");
+            localStorage.removeItem("fq");
+            localStorage.removeItem("xl");
+            localStorage.removeItem("zd");
+            localStorage.removeItem("mj");
+            localStorage.removeItem("jg");
+            localStorage.removeItem("px");
+        }else{
+            localStorage.removeItem("areastalist");
+            localStorage.removeItem("pricelist");
+            localStorage.removeItem("histlist");
+            localStorage.removeItem("jgtjianlist");
+            localStorage.removeItem("xztagastalist");
+            localStorage.removeItem("areaRangelist");
+            localStorage.removeItem("priceRangelist");
+            this.init();
+        }
+        //var wxcode = this.GetQueryString("code");
+        /*if(wxcode == null){
+            window.location = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx109df14878717ecb&redirect_uri=http%3A%2F%2Fomc.urskongjian.com%2Fwanx%2F%23%2Flist&response_type=code&scope=snsapi_base&state=123#wechat_redirect";
+        }else{
+            alert(wxcode);
+            /!*$.get("http://omc.urskongjian.com/yhcms/web/jcsj/getOpenid.do?code="+wxcode,
+                {
+                },
+                {
+                    headers:{
+                        "Access-Control-Allow-Origin":"*",
+                        "Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept",
+                        "Access-Control-Allow-Methods":"GET, PUT, DELETE, POST, OPTIONS"
+
+                    },
+                    dataType: 'jsonp',
+                    crossDomain: true
+                }
+            ).then((data) => {
+                alert("aa2");
+                var data = JSON.parse(data.bodyText).data;
+                alert(data);
+                alert(data.subscribe);
+                if (data.subscribe == 1 || data.subscribe == 3 ) {
+                    next();
+                } else {
+                    alert("aa3");
+                    window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzI0NjY4ODM5OQ==#wechat_redirect";
+                }
+            }).catch(function(response) {
+            });*!/
+
+
+            this.$http.post(
+                this.$api + "/yhcms/web/jcsj/getOpenid.do?code="+wxcode
+            ).then(function (res) {
+                var data = JSON.parse(res.bodyText);
+                if (data.success) {
+                    if (data.subscribe == 1 || data.subscribe == 3 ) {
+                        alert(111);
+                        next();
+                    } else {
+                        alert("aa3");
+                        window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzI0NjY4ODM5OQ==#wechat_redirect";
+                    }
+
+                } else {
+                    Toast({
+                        message: '获取筛选条件失败: ' + data.message,
+                        position: 'bottom'
+                    });
+                }
+            }, function (res) {
+                Toast({
+                    message: '获取筛选条件失败! 请稍候再试',
+                    position: 'bottom'
+                });
+            });
+        }*/
         //jquery中删除style样式
       $("body").removeAttr("style");
       $("html").removeAttr("style");
       /*console.log("mounted=================",this.para.curr_page);*/
-      this.init();
+      $('title').html('楼盘列表');
 
       //下滑时，条件tab固定
       $(window).scroll(function () {
@@ -350,7 +517,6 @@
             top: '.88rem',
             left: 0
           });
-
           $('#pos_block').show();
 
         } else {
@@ -359,7 +525,7 @@
             top: 0,
             left: 0
           });
-          $('#pos_block').hide();
+            $('#pos_block').hide();
         }
       });
     },
@@ -376,6 +542,32 @@
       }
     },
     methods: {
+      jiyishuj(){
+          localStorage.setItem('fhdata', JSON.stringify(this.resultData));
+          localStorage.setItem('topsj', JSON.stringify($(window).scrollTop()));
+          localStorage.setItem('page', JSON.stringify(this.para.curr_page));
+          localStorage.setItem('xzqv', JSON.stringify(this.para.district));
+          localStorage.setItem('sq', JSON.stringify(this.para.business));
+          localStorage.setItem('ywqv', JSON.stringify(this.para.district1));
+          localStorage.setItem('fq', JSON.stringify(this.para.business1));
+          localStorage.setItem('xl', JSON.stringify(this.para.line_id));
+          localStorage.setItem('zd', JSON.stringify(this.para.station_id));
+          localStorage.setItem('mj', JSON.stringify(this.para.area));
+          localStorage.setItem('jg', JSON.stringify(this.para.price_dj));
+          if(this.priceFilter != ''){
+              localStorage.setItem('px', JSON.stringify(this.priceFilter));
+          }else if(this.areaFilter != ''){
+              localStorage.setItem('px', JSON.stringify(this.areaFilter));
+          }else{
+              localStorage.setItem('px', JSON.stringify("D"));
+          }
+
+
+
+
+
+      },
+
       init(){
         axios.defaults.baseURL = this.$api; 
         axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
@@ -385,11 +577,14 @@
 
         this.resetGetData();
         this.getFilters();
-
-        $('title').html('楼盘列表');
       },
       selectTag(e){
         const target = $(e.target), val = target.attr("value"), t = target.attr("target"), which = t ==="price" ? "priceTag" : "areaTag";
+        if(t == 'area'){
+            localStorage.setItem('areastalist', JSON.stringify(val));
+        }else{
+            localStorage.setItem('pricelist', JSON.stringify(val));
+        }
         const range = t ==="price" ? "price_dj" : "area";
         let final = val === "-1" ? "" : val.replace("<","0-").replace(">","").replace("=","").split("-"); 
         if(val !== "-1" && final.length < 2){
@@ -405,7 +600,6 @@
         else{
             this.areaRange = ["",""];
         }
-
         if(!val || !t){return;}
         if ($(target).hasClass('active')) {
           this[which] = val;
@@ -432,6 +626,7 @@
           this.tsTag = [..._t];
           $(target).addClass('active');
         }
+        localStorage.setItem('xztagastalist', JSON.stringify(this.tsTag));
         this.para.label = this.tsTag.join(",");
       },
       filterFocus(e){
@@ -445,7 +640,7 @@
               this.para.area = "";
           }
       },
-      setFilter(e){
+        setFilter(e){
         const target = $(e.target), which = target.attr("rel");
         if(which==="confirm") {
             const aa = this.areaRange[0], ea = this.areaRange[1];
@@ -474,9 +669,13 @@
             this.tsTag = [];
             this.priceRange = ["", ""];
             this.areaRange = ["", ""];
+            this.xztagasta = [];
+            this.price = "";
+            this.areasta = "";
             return;
         }
-
+        localStorage.setItem('priceRangelist', JSON.stringify(this.priceRange));
+        localStorage.setItem('areaRangelist', JSON.stringify(this.areaRange));
         this.priceFilter = '';
         this.areaFilter = '';
         this.resetGetData();
@@ -496,6 +695,7 @@
             Indicator.close()
           });
       },
+        //点击行政区域获取后面的数据方法
       searchSubArea:function(code,e){
         this.curTab = "a";
         this.thirdpart = "sq";
@@ -506,7 +706,9 @@
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
         li.addClass("highlight").siblings().removeClass("highlight");
         this.where = txt;
-
+        this.hist.ercode = code;
+        this.er = code;
+        this.hist.txt = txt;
         var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000010"}, this_ = this;
         axios.post('/yhcms/web/lpjbxx/getLpXzqyFq.do', paraObj)
           .then(function (response) {
@@ -515,6 +717,19 @@
           }).catch(function (error) {
             Indicator.close();
         });
+      },
+      searchSubAreafh:function(code){
+          this.er = code;
+          this.where = this.his.txt;
+          $('h2.district-h').html(this.where);
+          var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000010"}, this_ = this;
+          axios.post('/yhcms/web/lpjbxx/getLpXzqyFq.do', paraObj)
+              .then(function (response) {
+                  Indicator.close();
+                  this_.subBuesiness = [{"fdcode":code,"fdname":"不限"}].concat(response.data.data.xzfq);
+              }).catch(function (error) {
+              Indicator.close();
+          });
       },
       searchArea:function(code,e){
         this.curTab = "y";
@@ -527,7 +742,9 @@
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
         li.addClass("highlight").siblings().removeClass("highlight");
         this.where = txt;
-
+        this.hist.ercode = code;
+        this.er = code;
+        this.hist.txt = txt;
         var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000012"}, this_ = this;
         axios.post('/yhcms/web/lpjbxx/getLpYwqyFq.do', paraObj)
           .then(function (response) {
@@ -536,6 +753,19 @@
           }).catch(function (error) {
             Indicator.close();
         });
+      },
+      searchAreafh:function(code){
+          this.er = code;
+          this.where = this.his.txt;
+          $('h2.district-h').html(this.where);
+          var paraObj = {"parameters":{"district":code},"foreEndType":2,"code":"300000012"}, this_ = this;
+          axios.post('/yhcms/web/lpjbxx/getLpYwqyFq.do', paraObj)
+              .then(function (response) {
+                  Indicator.close();
+                  this_.otherBusiness = [{"id":code,"fdname":"不限"}].concat(response.data.data.ywfq);
+              }).catch(function (error) {
+              Indicator.close();
+          });
       },
       searchStation:function(line,e){
         this.curTab = "l";
@@ -548,7 +778,13 @@
         const li = $(e.target).closest("li"), txt = $(li).find("a").text();
         li.addClass("highlight").siblings().removeClass("highlight");
         this.where = txt;
-
+        this.hist.ercode = line;
+        this.er = line;
+        if(txt != "不限"){
+            this.hist.txt = txt;
+        }else{
+            this.hist.txt = "不限";
+        }
         var paraObj = {"parameters":{"line_id":line},"foreEndType":2,"code":"30000008"}, this_ = this;
         axios.post('/yhcms/web/lpjbxx/getLpSubwaystation.do', paraObj)
           .then(function (response) {
@@ -557,6 +793,19 @@
           }).catch(function (error) {
             Indicator.close();
         });
+      },
+      searchStationfh:function(line){
+          this.er = line;
+          this.where = this.his.txt;
+          $('h2.district-h').html(this.where);
+          var paraObj = {"parameters":{"line_id":line},"foreEndType":2,"code":"30000008"}, this_ = this;
+          axios.post('/yhcms/web/lpjbxx/getLpSubwaystation.do', paraObj)
+              .then(function (response) {
+                  Indicator.close();
+                  this_.stationArray = [{"id":line,"fdname":"不限"}].concat(response.data.data.subway_station);
+              }).catch(function (error) {
+              Indicator.close();
+          });
       },
       setPriceFilter(e){
           const li = $(e.target).closest("li");
@@ -569,11 +818,17 @@
               this.priceFilter = 'P2';
           }
           this.areaFilter = '';
-
+          localStorage.setItem('jgtjianlist',1);
           const that = this;
           setTimeout(function(){
               that.resetGetData();
           }, 500);
+      },
+      setPriceFilterfh(){
+          $('#jgtjian').addClass("highlight").toggleClass("active-filter");;
+          if(this.priceFilter == 'P1'){
+              $('#jgtjian').addClass("active-filter");
+          }
       },
       setAreaFilter(e){
           const li = $(e.target).closest("li");
@@ -585,27 +840,44 @@
               this.areaFilter = 'A2';
           }
           this.priceFilter = '';
-
+          localStorage.setItem('jgtjianlist',2);
           const that = this;
           setTimeout(function(){
               that.resetGetData();
           }, 500);
       },
-      getQueryString: function (key) {
+      setAreaFilterfh(){
+          $('#mjtjian').addClass("highlight");
+          if(this.priceFilter == 'A1'){
+              $('#mjtjian').addClass("active-filter");
+          }
+      },
+      /*getQueryString: function (key) {
         var t = new RegExp("(^|&)" + key + "=([^&]*)(&|$)", "i"),
           n = window.location.search.substr(1).match(t);
         return null != n ? decodeURI(n[2]) : "";
-      },
+      },*/
       closeFilter: function () {
         this.currentFilterTab = 'nth';
       },
       changeRou: function () {
-        this.$router.push({path: '/filter'})
+          //vue中的get传值时逗号后面必须是query参数（其他的单词会报错，不能随便定义）
+        this.$router.push({path: '/filter', query: {keyword33:this.para.search_keywork}});
       },
       searchChoose: function (code, val, value, e) {
         const li = $(e.target).closest('li');
-        li.addClass("highlight").siblings().removeClass("highlight");
+        if(value == "不限"){
 
+        }else{
+            this.hist.txt = value;
+        }
+        li.addClass("highlight").siblings().removeClass("highlight");
+        this.hist.ercode = this.er;
+        this.hist.sancode = code;
+        this.hist.sicoole = this.thirdpart;
+        this.hist.wucoole = this.curTab;
+        this.hist.yicode = this.positionType;
+        localStorage.setItem('histlist', JSON.stringify(this.hist));
         switch (li.attr('data-type')) {
           case 'positionA':
             //行政区域
@@ -727,6 +999,11 @@
         this.currentFilterTab = li.attr('data-type');
         $(li).siblings().removeClass("active-filter");
         $(li).siblings().removeClass("highlight");
+        if(this.currentFilterTab=='features' || this.currentFilterTab=='district'){
+            this.areaFilter = '';
+            this.priceFilter = '';
+            localStorage.removeItem("jgtjianlist");
+        }
       },
       resetGetData: function () {
         this.noMore = false;
@@ -734,7 +1011,6 @@
 
         this.para.curr_page = 1;
         this.resultData = [];
-
         Indicator.open({
            text: '',
            spinnerType: 'fading-circle'
@@ -743,6 +1019,7 @@
         Indicator.close();
       },
       getData(){
+          console.log(this.para.area);
         const paraObj = {
           "parameters": {
             "search_keywork": this.para.search_keywork,
@@ -762,12 +1039,12 @@
           "foreEndType": 2,
           "code": "30000001"
         }, this_ = this;
-
         this.currentFilterTab = 'nth';
         let successCb = function (result) {
           Indicator.close();
           this_.loading = false;
-          this_.resultData = this_.resultData.concat(result.data.data.buildings);
+            $("#zhezhaoc").remove();
+            this_.resultData = this_.resultData.concat(result.data.data.buildings);
           if (result.data.data < this_.para.items_perpage) {
             this_.noMore = true;
           }
@@ -777,7 +1054,7 @@
               position: 'middle',
               duration: 3000
             });
-          } else if (this_.resultData.length > 0 && result.data.data.length == 0) {
+          } else if (this_.resultData.length > 0 && result.data.data.buildings.length == 0) {
             Toast({
               message: '已经获得当前条件的所有楼盘!',
               position: 'middle',
@@ -788,6 +1065,7 @@
         let errorCb = function (result) {
           Indicator.close();
           this_.loading = false;
+          $("#zhezhaoc").remove();
           Toast({
             message: '抱歉,暂无符合条件的房源!',
             position: 'middle',
@@ -819,6 +1097,21 @@
           /*console.log("loadMore1=================",this.para.curr_page);*/
         if (!this.loading && !this.noMore) {
           this.loading = true;
+          var wwd = $(window).width();
+          var wgd = $('#zhezcly').height() + 120;
+          $("body").prepend('<div id="zhezhaoc"></div>');
+          $("#zhezhaoc").css({
+              width: "" + wwd + "px",
+              height: "" + wgd + "px",
+              "background-color": "#FFFFFF",
+              "z-index": "1200",
+              opacity: "0",
+              position: "absolute",
+              top: "0px",
+              left: "0px",
+              "overflow":"hidden",
+          });
+          this.para.curr_page = parseInt(this.para.curr_page);
           this.para.curr_page += 1;
             /*console.log("loadMore2=================",this.para.curr_page);*/
           this.getData();

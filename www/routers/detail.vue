@@ -24,7 +24,7 @@
     height: 100%;
     text-align: center;
     background-color: black;
-    display: block;
+      display: block;
     float: none;
     position: absolute;
     z-index:9999;
@@ -105,7 +105,8 @@
         <div id="houseScroll">
           <div class="size_wrap">
             <div class="size_box clearfix">
-              <div v-for="(item,index) in area_arr" v-if="index == 0"
+              <!--数组中的前2条数据在这个if中显示，其他的数据在else中显示-->
+              <div v-for="(item,index) in area_arr" v-if="index < 2"
                    :id="item.code"
                    :class="{active:areaActive == index}"
                    @click="sel_area_list($event)"
@@ -113,7 +114,7 @@
               </div>
 
               <template v-else>
-                <div v-if="index == area_arr.length-1"
+                <div v-if="index == area_arr.length-2"
                      :class="{active:areaActive == index}"
                      class="last"
                      @click="sel_area_list($event)"
@@ -138,15 +139,15 @@
                   <!--<span >{{item.fybh}}</span>
                   <span v-else>{{item.zdh}} - {{item.fybh}}</span>-->
                   <span>
-                    <i v-if="item1.zdh.indexOf('独栋')> -1">{{item1.fybh}}</i>
-                    <i v-else>{{item1.zdh}} - {{item1.fybh}}</i>
+                    <i v-if="item1.zdh.indexOf('独栋')> -1"><label v-if="item1.fjzt == '预租房'">即将上线</label><label v-else>{{item1.fybh}}</label></i>
+                    <i v-else><label v-if="item1.fjzt == '预租房'">即将上线</label><label v-else>{{item1.zdh}} - {{item1.fybh}}</label></i>
                   </span>
                   <span style="border:0px solid red;height:.5rem;"></span>
-                  <span>
+                  <span style="width: 5rem;">
                        <i v-text="item1.daily_price==='0.0'?'':item1.daily_price"></i><i>元/㎡·天</i>
                       <i v-text="item1.monthly_price==='0.0'?'':item1.monthly_price"></i><i>元/月</i>
                   </span>
-                  <span>
+                  <span style="width: 5rem;">
                       <i v-text="(item1.housing_area==='0.0'?'':item1.housing_area)+'㎡'"></i>
                       <i v-text="item1.workstation+'个工位'"></i>
                       <i v-text="item1.fjzt"></i>
@@ -202,10 +203,10 @@
         <div id="slideBox" class="slideBox">
           <div class="swiper-container">
             <div class="swiper-wrapper">
-              <div class="swiper-slide" v-for="image in building_images" style="transition-duration: 0ms !important;">
-                <a href="javascript:;" @click="enlarge">
+              <div class="swiper-slide" v-for="image in building_images">
+                <span @click="enlarge">
                   <img :src="$prefix + '/' + image" alt="">
-                </a>
+                </span>
               </div>
             </div>
             <!--<div class="banner-page">
@@ -253,7 +254,7 @@
         area: "", //区域
         price_dj: "", // 单价
         price_zj: "", //总价
-
+        yzfy:1,
         curr_page: 1, 
         wygs: '',//物业公司
         wyf: '',//物业费
@@ -266,7 +267,7 @@
         chqxz: "",
         tcwsl: "",
         building_images: [],
-        property: {"1":"写字楼", "2":"公寓","3":"商务楼","4":"住宅","5":"商业","6":"酒店","7":"综合","8":"别墅","9":"商业综合体","10":"酒店式公寓"},
+        property: {"1":"写字楼", "2":"公寓","3":"商务楼","5":"商业"},
         gaodeGPS: '',
         positionData: "",
         restaurant: "",
@@ -300,9 +301,15 @@
             _this.area_arr = result.data;
             var all_area = {
               code: "area_all",
-              name: "全部"
+              name: "现租房"
             };
+            var all_area1 = {
+                code: "area_all1",
+                name: "预租房"
+            };
+            _this.area_arr.unshift(all_area1);
             _this.area_arr.unshift(all_area);
+            console.log(_this.area_arr);
             $('.size_box').width(_this.area_arr.length * 2.3 + 'rem');
 
           } else {
@@ -341,44 +348,44 @@
           var result = JSON.parse(res.bodyText);
           Indicator.close();
           if (result.success) {
-            if (result.data) {
+            if (result.data1) {
 
-              $('title').html(result.data.building_name);
+              $('title').html(result.data1.building_name);
 
-              _this.district = result.data.district == null ? '区域' : result.data.district; //区域
-              const business = !result.data.business ? '' : '-' + result.data.business; //商圈
-              _this.desp = !result.data.desp ? "": result.data.desp;
-              _this.total = result.data.kzfyS || 100;
-              _this.total_items = result.data.kzfyS == null ? '暂无数据' : result.data.kzfyS;
+              _this.district = result.data1.district == null ? '区域' : result.data1.district; //区域
+              const business = !result.data1.business ? '' : '-' + result.data1.business; //商圈
+              _this.desp = !result.data1.desp ? "": result.data1.desp;
+              _this.total = result.data1.kzfyS || 100;
+              _this.total_items = result.data1.kzfyS == null ? '暂无数据' : result.data1.kzfyS;
 
               let district = _this.district  + business;
-              district = !district ? result.data.address : '【' + district + '】' + result.data.address;
+              district = !district ? result.data1.address : '【' + district + '】' + result.data1.address;
               _this.address = district;
-              _this.price = result.data.price == null ? '暂无数据' : result.data.price;
-              _this.positionData = result.data.longitude + ',' + result.data.latitude;
+              _this.price = result.data1.price == null ? '暂无数据' : result.data1.price;
+              _this.positionData = result.data1.longitude + ',' + result.data1.latitude;
               _this.bMap(_this.positionData);
 
-              _this.building_images = result.data.building_images.split(";");
+              _this.building_images = result.data1.building_images.split(";");
 
               //物业信息
-              _this.wygs = result.data.wygs || '暂无数据'; //物业公司
-              if(result.data.wyf == 0){
+              _this.wygs = result.data1.wygs || '暂无数据'; //物业公司
+              if(result.data1.wyf == 0){
                   _this.wyf = '已包含';
               }else{
-                  _this.wyf = !result.data.wyf ? '暂无数据' : result.data.wyf + '元/㎡/月'; //物业费
+                  _this.wyf = !result.data1.wyf ? '暂无数据' : result.data1.wyf + '元/㎡/月'; //物业费
               }
-              _this.kprq = result.data.kprq || '暂无数据'; // 建成年代
-              _this.tcwsl = result.data.tcwsl || '暂无数据';
-              _this.tcf = !result.data.tcf ? '暂无数据' : result.data.tcf + '元/月';
-              _this.wlgs = result.data.wlgs || '暂无数据';
-              if(result.data.gnf == 0){
+              _this.kprq = result.data1.kprq || '暂无数据'; // 建成年代
+              _this.tcwsl = result.data1.tcwsl || '暂无数据';
+              _this.tcf = !result.data1.tcf ? '暂无数据' : result.data1.tcf + '元/月';
+              _this.wlgs = result.data1.wlgs || '暂无数据';
+              if(result.data1.gnf == 0){
                   _this.gnf = '已包含';
               }else{
-                  _this.gnf = !result.data.gnf ? '暂无数据' : result.data.gnf + '元/㎡/季';
+                  _this.gnf = !result.data1.gnf ? '暂无数据' : result.data1.gnf + '元/㎡/季';
               }
-              _this.fybh = !result.data.fybh || '';
-              _this.zc = result.data.zc || '暂无数据';
-              _this.chqxz = result.data.chqxz.split('、').map((p)=>{return this.property[p]});
+              _this.fybh = !result.data1.fybh || '';
+              _this.zc = result.data1.zc || '暂无数据';
+              _this.chqxz = result.data1.chqxz.split('、').map((p)=>{return this.property[p]});
 
               /*
               setTimeout(function(){_this.getPoi("餐厅", "restaurant");},1000);
@@ -421,7 +428,7 @@
         });
         this.$http.post(
           this.$api + "/yhcms/web/lpjbxx/getZdLpxq.do",
-          {"parameters":{"building_id":this.building_id,"curr_page":this.curr_page,"items_perpage":"5","area":this.area},"foreEndType":2,"code":"30000002"}
+          {"parameters":{"building_id":this.building_id,"curr_page":this.curr_page,"items_perpage":"5","area":this.area,"real":this.yzfy},"foreEndType":2,"code":"30000002"}
         ).then(function (res) {
           var result = JSON.parse(res.bodyText);
           Indicator.close();
@@ -464,8 +471,9 @@
 
         this.area = "";
         var min = 0, max = 0, sort_two_single = 1;
-        if ($(e.target).html() == '全部') {
+        if ($(e.target).html() == '现租房') {
           this.area = "";
+          this.yzfy = 1;
         } /*else if ($(e.target).hasClass('last')) {
           this.area = [];
             console.log(this.area);
@@ -474,7 +482,10 @@
           this.area.push(min);
           this.area.push(max);
             console.log(this.area);
-        }*/else {
+        }*/else if($(e.target).html() == '预租房'){
+          this.area = "";
+          this.yzfy = 0;
+        }else{
           this.area = "";
           var area_fw = $(e.target).html()/*.split('-')*/;
          /* min = Math.floor(area_fw[0]);*/
@@ -532,7 +543,7 @@
     },
     mounted(){
       var _this = this;
-
+      $(window).scrollTop(0);
       this.building_id = this.$route.query.building_id;
 
       Indicator.open({
